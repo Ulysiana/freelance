@@ -11,8 +11,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     fetch('/api/auth/me').then(r => r.json()).then(data => {
-      if (!data.user) router.push('/login')
-      else setUser(data.user)
+      if (!data.user) { router.push('/login'); return }
+      const onSetupPage = window.location.pathname === '/client/securite'
+      if (!data.user.totpEnabled && !onSetupPage) { router.push('/client/securite'); return }
+      setUser(data.user)
     })
   }, [router])
 

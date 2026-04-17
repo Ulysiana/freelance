@@ -12,12 +12,13 @@ export type SafeUser = {
   name: string | null
   pseudo: string | null
   role: Role
+  totpEnabled: boolean
   createdAt: Date
   updatedAt: Date
 }
 
-function toSafeUser(user: { id: string; email: string; name: string | null; pseudo: string | null; role: Role; createdAt: Date; updatedAt: Date; passwordHash: string }): SafeUser {
-  const { passwordHash: _, ...safe } = user
+function toSafeUser(user: { id: string; email: string; name: string | null; pseudo: string | null; role: Role; totpSecret: string | null; totpEnabled: boolean; createdAt: Date; updatedAt: Date; passwordHash: string }): SafeUser {
+  const { passwordHash: _, totpSecret: __, ...safe } = user
   return safe
 }
 
@@ -86,13 +87,16 @@ export async function deleteSession(token: string): Promise<void> {
 // ==================== AUTH ====================
 
 export async function authenticateUser(email: string, password: string): Promise<
-  | { success: true; user: SafeUser; session: { token: string } }
+  | { success: true; user: SafeUser; session: { token: string } | null; totpEnabled: boolean }
   | { success: false }
 > {
   const user = await findUserByEmail(email)
   if (!user) return { success: false }
   const valid = await bcrypt.compare(password, user.passwordHash)
   if (!valid) return { success: false }
+  if (user.totpEnabled) {
+    return { success: true, user: toSafeUser(user), session: null, totpEnabled: true }
+  }
   const session = await createSession(user.id)
-  return { success: true, user: toSafeUser(user), session }
+  return { success: true, user: toSafeUser(user), session, totpEnabled: false }
 }

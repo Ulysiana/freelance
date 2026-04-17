@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const from = searchParams.get('from') || '/admin'
+  const from = searchParams.get('from') || '/bureau'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -25,6 +25,10 @@ function LoginForm() {
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error || 'Erreur de connexion'); return }
+      if (data.requiresOtp) {
+        router.push(`/login/otp?role=${data.role}`)
+        return
+      }
       const role = data.user?.role
       if (role === 'CLIENT') router.push('/client')
       else router.push(from)

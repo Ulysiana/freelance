@@ -7,7 +7,7 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get(COOKIE_NAME)?.value
 
-  const isProtected = pathname.startsWith('/admin') || pathname.startsWith('/client')
+  const isProtected = pathname.startsWith('/bureau') || pathname.startsWith('/client')
 
   if (isProtected && !token) {
     const loginUrl = new URL('/login', request.url)
@@ -19,5 +19,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/client/:path*'],
+  matcher: ['/bureau/:path*', '/client/:path*'],
 }
