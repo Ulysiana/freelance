@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { ArrowLeft, Type, Tag, AlignLeft, CheckSquare, Clock, MessageSquare, Save, Trash2, Circle, Loader2, CheckCircle2, BadgeCheck } from 'lucide-react'
+import Link from 'next/link'
+import { ChevronRight, Type, Tag, AlignLeft, CheckSquare, Clock, MessageSquare, Paperclip, Save, Trash2, Circle, Loader2, CheckCircle2, BadgeCheck } from 'lucide-react'
 
 const RichEditor = dynamic(() => import('@/components/admin/RichEditor'), { ssr: false })
 const TaskChecklist = dynamic(() => import('@/components/admin/TaskChecklist'), { ssr: false })
 const Chronometer = dynamic(() => import('@/components/admin/Chronometer'), { ssr: false })
 const TaskComments = dynamic(() => import('@/components/admin/TaskComments'), { ssr: false })
+const AttachmentUploader = dynamic(() => import('@/components/admin/AttachmentUploader'), { ssr: false })
 
 type Task = { id: string; title: string; description: string | null; status: string; phase: { id: string; name: string; project: { id: string; name: string; tjm: number } } }
 
@@ -83,11 +85,14 @@ export default function TaskDetailPage() {
         </button>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-        <button onClick={() => router.push(`/admin/projets/${id}/taches`)} style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', color: 'rgba(240,235,228,0.4)', cursor: 'pointer', padding: 0 }}>
-          <ArrowLeft size={18} strokeWidth={1.8} />
-        </button>
-        <span style={{ fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>{task.phase.project.name} › {task.phase.name}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: 'rgba(240,235,228,0.35)', flexWrap: 'wrap' }}>
+        <Link href="/admin/projets" style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>Projets</Link>
+        <ChevronRight size={12} strokeWidth={1.5} />
+        <Link href={`/admin/projets/${id}`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{task.phase.project.name}</Link>
+        <ChevronRight size={12} strokeWidth={1.5} />
+        <Link href={`/admin/projets/${id}/taches`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{task.phase.name}</Link>
+        <ChevronRight size={12} strokeWidth={1.5} />
+        <span style={{ color: 'rgba(240,235,228,0.6)' }}>{title}</span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 16 }}>
@@ -121,6 +126,11 @@ export default function TaskDetailPage() {
         <div>
           <SectionLabel icon={Clock} label="Temps passé" />
           <Chronometer taskId={taskId} tjm={task.phase.project.tjm} />
+        </div>
+
+        <div>
+          <SectionLabel icon={Paperclip} label="Pièces jointes" />
+          <AttachmentUploader taskId={taskId} isAdmin={currentUserRole === 'ADMIN'} />
         </div>
 
         <div>

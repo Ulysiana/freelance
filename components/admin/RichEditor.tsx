@@ -15,7 +15,7 @@ export default function RichEditor({ value, onChange }: { value: string; onChang
 
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value, false)
+      editor.commands.setContent(value)
     }
   }, [value, editor])
 

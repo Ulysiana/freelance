@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Kanban, Clock, MessageCirclePlus } from 'lucide-react'
+import { Kanban, Clock, MessageCirclePlus, FileText } from 'lucide-react'
 
 type Project = {
   id: string; name: string; description: string | null; status: string; tjm: number; createdAt: string
@@ -116,7 +116,8 @@ export default function ProjetDetailPage() {
         {[
           { href: `/admin/projets/${id}/taches`,  label: 'Phases & Tâches', icon: Kanban },
           { href: `/admin/projets/${id}/temps`,   label: 'Suivi du temps',  icon: Clock },
-          { href: `/admin/projets/${id}/demandes`,label: 'Demandes',        icon: MessageCirclePlus },
+          { href: `/admin/projets/${id}/demandes`,  label: 'Demandes',        icon: MessageCirclePlus },
+          { href: `/admin/projets/${id}/documents`, label: 'Documents',       icon: FileText },
         ].map(({ href, label, icon: Icon }) => (
           <Link key={href} href={href} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,235,228,0.7)', textDecoration: 'none', fontSize: 13, transition: 'border-color 0.15s' }}>
             <Icon size={14} strokeWidth={1.8} />

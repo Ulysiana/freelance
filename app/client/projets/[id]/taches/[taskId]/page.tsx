@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { ChevronRight } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
 const TaskComments = dynamic(() => import('@/components/admin/TaskComments'), { ssr: false })
+const AttachmentUploader = dynamic(() => import('@/components/admin/AttachmentUploader'), { ssr: false })
 
 type Task = {
   id: string
@@ -46,9 +49,14 @@ export default function ClientTaskPage() {
 
   return (
     <div style={{ maxWidth: 680 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-        <button onClick={() => router.push(`/client/projets/${id}`)} style={{ background: 'none', border: 'none', color: 'rgba(240,235,228,0.4)', cursor: 'pointer', fontSize: 20, padding: 0 }}>←</button>
-        <span style={{ fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>{task.phase.project.name} › {task.phase.name}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: 'rgba(240,235,228,0.35)', flexWrap: 'wrap' }}>
+        <Link href="/client/projets" style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>Projets</Link>
+        <ChevronRight size={12} strokeWidth={1.5} />
+        <Link href={`/client/projets/${id}`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{task.phase.project.name}</Link>
+        <ChevronRight size={12} strokeWidth={1.5} />
+        <span style={{ color: 'rgba(240,235,228,0.5)' }}>{task.phase.name}</span>
+        <ChevronRight size={12} strokeWidth={1.5} />
+        <span style={{ color: 'rgba(240,235,228,0.7)' }}>{task.title}</span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
@@ -89,6 +97,11 @@ export default function ClientTaskPage() {
           </div>
         </div>
       )}
+
+      <div style={{ marginBottom: 24 }}>
+        <label style={{ fontSize: 11, color: 'rgba(240,235,228,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 10 }}>Pièces jointes</label>
+        <AttachmentUploader taskId={taskId} isAdmin={false} />
+      </div>
 
       <div>
         <label style={{ fontSize: 11, color: 'rgba(240,235,228,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 10 }}>Commentaires</label>

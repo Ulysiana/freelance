@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { ChevronRight } from 'lucide-react'
 import PhaseBoard from '@/components/admin/PhaseBoard'
 
 type Phase = { id: string; name: string; order: number; tasks: { id: string; title: string; status: string; description: string | null }[] }
@@ -26,13 +27,14 @@ export default function TachesPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
-        <Link href={`/admin/projets/${id}`} style={{ background: 'none', border: 'none', color: 'rgba(240,235,228,0.4)', cursor: 'pointer', fontSize: 20, textDecoration: 'none' }}>←</Link>
-        <div>
-          <div style={{ fontSize: 12, color: 'rgba(240,235,228,0.35)', marginBottom: 2 }}>{projectName}</div>
-          <h1 style={{ fontSize: 22, fontWeight: 700 }}>Phases & Tâches</h1>
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>
+        <Link href="/admin/projets" style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>Projets</Link>
+        <ChevronRight size={12} strokeWidth={1.5} />
+        <Link href={`/admin/projets/${id}`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{projectName}</Link>
+        <ChevronRight size={12} strokeWidth={1.5} />
+        <span style={{ color: 'rgba(240,235,228,0.6)' }}>Phases & Tâches</span>
       </div>
+      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 24 }}>Phases & Tâches</h1>
 
       {loading ? <p style={{ color: 'rgba(240,235,228,0.4)', fontSize: 14 }}>Chargement...</p> : (
         <PhaseBoard
