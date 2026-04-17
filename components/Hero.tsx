@@ -85,7 +85,7 @@ export default function Hero() {
           marginBottom: 40,
         }}
       >
-        Python · React · Node · Rust · WordPress · Shopify · Cloud Run · Neon.
+        Python · React · Node · Rust · WordPress · Shopify · GCP · AWS · Azure · Neon.
         <br />
         Autodidacte depuis les années 2000. Passionnée. Soirs &amp; week-ends.
       </motion.p>

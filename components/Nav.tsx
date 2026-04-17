@@ -1,15 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const links = [
   { href: "#offers", label: "Offres" },
   { href: "#story", label: "Histoire" },
   { href: "#projects", label: "Réalisations" },
+  { href: "/hebergeurs", label: "Gîtes & Locations" },
 ];
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const resolveHref = (href: string) =>
+    href.startsWith("#") && pathname !== "/" ? `/${href}` : href;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -70,7 +75,7 @@ export default function Nav() {
           {links.map((l) => (
             <a
               key={l.href}
-              href={l.href}
+              href={resolveHref(l.href)}
               style={{
                 fontSize: 13,
                 color: "rgba(240,235,228,0.55)",
@@ -161,7 +166,7 @@ export default function Nav() {
           {links.map((l) => (
             <a
               key={l.href}
-              href={l.href}
+              href={resolveHref(l.href)}
               onClick={() => setMenuOpen(false)}
               style={{
                 fontSize: 15,

@@ -20,12 +20,12 @@ const projects = [
     preview: "/images/preview-difyzi.png",
   },
   {
-    name: "mymhynose.fr",
-    url: "",
-    type: "Création & Migration WordPress · Infrastructure serveur",
-    stack: ["WordPress", "Linux VPS", "Cloudflare DNS", "cPanel"],
-    desc: "Création du site WordPress et migration depuis un hébergement mutualisé cPanel vers un VPS Linux dédié : transfert des fichiers et de la base de données, configuration du serveur, bascule DNS via Cloudflare — zéro downtime, zéro perte de données.",
-    preview: "",
+    name: "mymhypnose.fr",
+    url: "https://mymhypnose.fr/",
+    type: "Formation WordPress · Migration cPanel → VPS",
+    stack: ["WordPress", "Linux VPS", "Cloudflare DNS"],
+    desc: "Formation WordPress pour mettre le client en autonomie sur son site. Migration cPanel vers VPS Linux : transfert BDD et fichiers, config serveur, bascule DNS Cloudflare — zéro downtime.",
+    preview: "/images/preview-mymhypnose.webp",
   },
 ];
 

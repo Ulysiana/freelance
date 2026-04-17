@@ -10,7 +10,7 @@ const offers = [
     items: [
       "Python, React, Node, Rust",
       "Apps web, desktop (Tauri), mobile",
-      "Architecture serveur Linux & Cloud Run",
+      "Architecture serveur Linux & cloud (GCP, AWS, Azure)",
       "WordPress, Shopify, intégrations API",
       "Soirs & week-ends disponibles",
     ],
@@ -55,7 +55,7 @@ const offers = [
     items: [
       "Spécifications & conception technique",
       "Dev Python / React / Node / WP / Shopify",
-      "Déploiement Cloud Run ou hébergement",
+      "Déploiement cloud ou hébergement",
       "Tests & mise en production",
       "Support 30 jours post-lancement",
     ],

@@ -87,17 +87,31 @@ export default function Home() {
           © {new Date().getFullYear()} Creahub Solutions — Développeuse Freelance ·{" "}
           Python · React · WordPress · Cloud · 100 % remote
         </span>
-        <a
-          href="/cgv"
-          style={{
-            color: "rgba(240,235,228,0.25)",
-            textDecoration: "none",
-            fontSize: 11,
-            transition: "color 0.2s",
-          }}
-        >
-          Conditions Générales de Vente
-        </a>
+        <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+          <a
+            href="/cgv"
+            style={{
+              color: "rgba(240,235,228,0.25)",
+              textDecoration: "none",
+              fontSize: 11,
+              transition: "color 0.2s",
+            }}
+          >
+            Conditions Générales de Vente
+          </a>
+          <span style={{ color: "rgba(240,235,228,0.1)", fontSize: 11 }}>·</span>
+          <a
+            href="/partenariat"
+            style={{
+              color: "rgba(240,235,228,0.25)",
+              textDecoration: "none",
+              fontSize: 11,
+              transition: "color 0.2s",
+            }}
+          >
+            Partenariat
+          </a>
+        </div>
       </footer>
     </>
   );

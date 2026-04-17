@@ -4,7 +4,7 @@ import FadeIn from "./FadeIn";
 const skills = [
   "Python", "React", "Node.js", "Rust", "Tauri",
   "Apps mobiles", "Next.js", "Linux & serveur",
-  "Cloud Run", "Neon (PostgreSQL)", "WordPress",
+  "Cloud (GCP · AWS · Azure)", "Neon (PostgreSQL)", "WordPress",
   "Shopify", "SEO technique", "Migrations BDD",
   "Intégrations API", "SQL & entrepôts de données",
   "Dev avec IA",
@@ -58,7 +58,7 @@ export default function Story() {
             >
               J'ai commencé à coder au début des années 2000 — dans{" "}
               <strong style={{ color: "#f0ebe4" }}>Notepad</strong>, comme on
-              faisait. Pas de framework, pas de tutoriel YouTube. Juste de la
+              faisait souvent à l'époque. Pas de framework, pas de tutoriel YouTube. Juste de la
               curiosité, un fichier HTML et beaucoup de{" "}
               <em style={{ color: "rgba(240,235,228,0.6)" }}>
                 «&nbsp;pourquoi ça marche pas&nbsp;»
