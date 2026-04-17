@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { FileText, Globe } from 'lucide-react'
+import { FileText, Globe, MessageSquare } from 'lucide-react'
 import PhaseBoard from '@/components/admin/PhaseBoard'
 
 type Phase = { id: string; name: string; order: number; tasks: { id: string; title: string; status: string; description: string | null }[] }
@@ -36,6 +36,9 @@ export default function ClientProjetDetailPage() {
         </Link>
         <Link href={`/client/projets/${id}/pages`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: 'rgba(240,235,228,0.7)', fontSize: 12, textDecoration: 'none' }}>
           <Globe size={13} strokeWidth={1.8} /> Pages HTML
+        </Link>
+        <Link href={`/client/projets/${id}/messages`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: 'rgba(240,235,228,0.7)', fontSize: 12, textDecoration: 'none' }}>
+          <MessageSquare size={13} strokeWidth={1.8} /> Messages
         </Link>
         <Link href={`/client/projets/${id}/demandes`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, fontSize: 12, textDecoration: 'none' }}>
           Mes demandes →

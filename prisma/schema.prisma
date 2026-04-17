@@ -27,6 +27,7 @@ model User {
   attachments           Attachment[]
   documents             Document[]
   htmlPages             HtmlPage[]
+  sentMessages          Message[]
 
   @@map("users")
 }
@@ -67,6 +68,7 @@ model Project {
   requests      ProjectRequest[]
   documents     Document[]
   htmlPages     HtmlPage[]
+  messages      Message[]
 
   @@map("projects")
 }
@@ -157,6 +159,21 @@ model TimeSession {
   user            User      @relation(fields: [userId], references: [id])
 
   @@map("time_sessions")
+}
+
+// ==================== MESSAGERIE ====================
+
+model Message {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  authorId  String   @map("author_id")
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id])
+
+  @@map("messages")
 }
 
 // ==================== PAGES HTML ====================
