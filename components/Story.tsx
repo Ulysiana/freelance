@@ -164,7 +164,7 @@ export default function Story() {
               {/* Photo blob */}
               <div style={{ position: "relative" }}>
                 <img
-                  src="/images/photo.png"
+                  src="https://pub-8f5fcb136dea4b40a0ab2b4891e0d4ac.r2.dev/site/photo.png"
                   alt="Corinne – Creahub Solutions"
                   style={{
                     width: 210,

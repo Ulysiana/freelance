@@ -9,7 +9,7 @@ const projects = [
     type: "Moteur de réservation multi-gîtes",
     stack: ["Python", "React", "Neon", "Cloud Run"],
     desc: "Moteur de réservation complet conçu et développé de zéro : gestion multi-gîtes, calendriers synchronisés, logique de prix dynamique, déploiement Cloud Run, BDD serverless Neon. Architecture pensée pour évoluer sans réécriture.",
-    preview: "/images/preview-hygge.png",
+    preview: "https://pub-8f5fcb136dea4b40a0ab2b4891e0d4ac.r2.dev/site/preview-hygge.png",
   },
   {
     name: "difyzi.com",
@@ -17,7 +17,7 @@ const projects = [
     type: "App web · Manipulation de PDF multi-outils",
     stack: ["React", "Python", "Rust"],
     desc: "Application web de manipulation de PDF développée de A à Z : fusion, compression, conversion et plus. Frontend React, traitements Python et Rust pour les opérations performantes sur les fichiers.",
-    preview: "/images/preview-difyzi.png",
+    preview: "https://pub-8f5fcb136dea4b40a0ab2b4891e0d4ac.r2.dev/site/preview-difyzi.png",
   },
   {
     name: "mymhypnose.fr",
