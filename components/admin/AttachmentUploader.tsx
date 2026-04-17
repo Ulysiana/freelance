@@ -28,6 +28,7 @@ function FileIcon({ mimeType }: { mimeType: string }) {
 
 function canPreview(mimeType: string) {
   return mimeType.startsWith('image/') || mimeType === 'application/pdf' ||
+    mimeType === 'text/html' ||
     mimeType.includes('wordprocessingml') || mimeType.includes('spreadsheetml') ||
     mimeType.includes('msword') || mimeType.includes('ms-excel')
 }

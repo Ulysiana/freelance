@@ -26,6 +26,7 @@ model User {
   projectRequests       ProjectRequest[]
   attachments           Attachment[]
   documents             Document[]
+  htmlPages             HtmlPage[]
 
   @@map("users")
 }
@@ -65,6 +66,7 @@ model Project {
   phases        Phase[]
   requests      ProjectRequest[]
   documents     Document[]
+  htmlPages     HtmlPage[]
 
   @@map("projects")
 }
@@ -155,6 +157,22 @@ model TimeSession {
   user            User      @relation(fields: [userId], references: [id])
 
   @@map("time_sessions")
+}
+
+// ==================== PAGES HTML ====================
+
+model HtmlPage {
+  id               String   @id @default(cuid())
+  projectId        String   @map("project_id")
+  uploadedByUserId String   @map("uploaded_by_user_id")
+  title            String
+  filename         String
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedBy       User     @relation(fields: [uploadedByUserId], references: [id])
+
+  @@map("html_pages")
 }
 
 // ==================== DOCUMENTS ====================
