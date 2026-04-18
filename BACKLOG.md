@@ -61,7 +61,7 @@
 - [ ] **Custom domain `creahub-solutions.fr`** → Cloud Run  
   Cloud Run Console → Domaines personnalisés → ajouter `creahub-solutions.fr` → entrées DNS chez O2switch → redéployer avec `NEXT_PUBLIC_APP_URL=https://creahub-solutions.fr`.
 
-- [ ] **Chronomètre — précision à la seconde**  
+- [x] **Chronomètre — précision à la seconde**  
   Actuellement `durationMinutes`. Ajouter `durationSeconds` sur `TimeSession`, recalculer coût (tjm/28800), afficher mm:ss.
 
 - [ ] **Cloudflare Worker — à évaluer**  
