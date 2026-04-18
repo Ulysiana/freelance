@@ -31,6 +31,7 @@ model User {
   htmlPages             HtmlPage[]
   sentMessages          Message[]
   invitationsCreated    Invitation[]
+  projectFiles          ProjectFile[]
 
   @@map("users")
 }
@@ -70,6 +71,7 @@ model Project {
   phases        Phase[]
   requests      ProjectRequest[]
   documents     Document[]
+  files         ProjectFile[]
   htmlPages     HtmlPage[]
   messages      Message[]
 
@@ -228,6 +230,24 @@ model Attachment {
   uploadedBy       User     @relation(fields: [uploadedByUserId], references: [id])
 
   @@map("attachments")
+}
+
+// ==================== FICHIERS PROJET ====================
+
+model ProjectFile {
+  id           String   @id @default(cuid())
+  projectId    String   @map("project_id")
+  uploadedById String   @map("uploaded_by_id")
+  filename     String
+  originalName String   @map("original_name")
+  mimeType     String   @map("mime_type")
+  size         Int
+  uploadedAt   DateTime @default(now()) @map("uploaded_at")
+
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+
+  @@map("project_files")
 }
 
 // ==================== COMMENTAIRES ====================

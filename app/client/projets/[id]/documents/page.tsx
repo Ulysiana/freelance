@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { FileText, Download, ChevronRight, Clock } from 'lucide-react'
+import { useParams } from 'next/navigation'
+import { FileText, Download, ChevronRight, Clock, Eye, Paperclip } from 'lucide-react'
 import Link from 'next/link'
 
 type Doc = {
@@ -10,10 +10,31 @@ type Doc = {
   author: { id: string; name: string | null; pseudo: string | null }
 }
 
+type ProjectFile = {
+  id: string; originalName: string; mimeType: string; size: number; uploadedAt: string
+  uploadedBy: { name: string | null; pseudo: string | null }
+}
+
+function formatSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} o`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} Ko`
+  return `${(bytes / 1024 / 1024).toFixed(1)} Mo`
+}
+
+function fileIcon(mimeType: string) {
+  if (mimeType.startsWith('image/')) return '🖼️'
+  if (mimeType === 'application/pdf') return '📄'
+  if (mimeType.includes('word')) return '📝'
+  if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '📊'
+  if (mimeType.includes('zip') || mimeType.includes('rar')) return '🗜️'
+  return '📁'
+}
+
 export default function ClientDocumentsPage() {
   const { id } = useParams<{ id: string }>()
-  const router = useRouter()
+  const [tab, setTab] = useState<'docs' | 'files'>('docs')
   const [docs, setDocs] = useState<Doc[]>([])
+  const [files, setFiles] = useState<ProjectFile[]>([])
   const [projectName, setProjectName] = useState('')
   const [selected, setSelected] = useState<Doc | null>(null)
   const printRef = useRef<HTMLDivElement>(null)
@@ -22,10 +43,12 @@ export default function ClientDocumentsPage() {
     Promise.all([
       fetch('/api/client/projects').then(r => r.json()),
       fetch(`/api/admin/projects/${id}/documents`).then(r => r.json()),
-    ]).then(([projectsData, docsData]) => {
+      fetch(`/api/admin/projects/${id}/files`).then(r => r.json()),
+    ]).then(([projectsData, docsData, filesData]) => {
       const project = (projectsData.projects || []).find((p: { id: string; name: string }) => p.id === id)
       setProjectName(project?.name || '')
       setDocs(docsData.documents || [])
+      setFiles(filesData.files || [])
     })
   }, [id])
 
@@ -46,6 +69,19 @@ export default function ClientDocumentsPage() {
     setSelected(null)
   }
 
+  async function openFile(fileId: string, download = false) {
+    const res = await fetch(`/api/admin/files/${fileId}/signed-url${download ? '?download=1' : ''}`)
+    const { url } = await res.json()
+    window.open(url, '_blank')
+  }
+
+  const tabStyle = (active: boolean) => ({
+    padding: '6px 16px', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none',
+    background: active ? 'rgba(232,148,106,0.15)' : 'transparent',
+    color: active ? '#e8946a' : 'rgba(240,235,228,0.4)',
+    transition: 'all 0.15s',
+  })
+
   return (
     <div style={{ maxWidth: 680 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>
@@ -56,34 +92,76 @@ export default function ClientDocumentsPage() {
         <span style={{ color: 'rgba(240,235,228,0.6)' }}>Documents</span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
         <FileText size={20} strokeWidth={1.8} style={{ color: '#e8946a' }} />
         <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Documents</h1>
       </div>
 
-      {docs.length === 0 ? (
-        <p style={{ fontSize: 13, color: 'rgba(240,235,228,0.25)' }}>Aucun document disponible.</p>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {docs.map(doc => (
-            <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
-              <FileText size={16} strokeWidth={1.5} style={{ color: 'rgba(232,148,106,0.6)', flexShrink: 0 }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#f0ebe4' }}>{doc.title}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'rgba(240,235,228,0.3)', marginTop: 2 }}>
-                  <Clock size={10} strokeWidth={1.8} />
-                  {new Date(doc.updatedAt).toLocaleDateString('fr-FR')}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 24, padding: '4px', background: 'rgba(255,255,255,0.04)', borderRadius: 8, width: 'fit-content' }}>
+        <button style={tabStyle(tab === 'docs')} onClick={() => setTab('docs')}>
+          <FileText size={12} strokeWidth={2} style={{ display: 'inline', marginRight: 6 }} />
+          Texte ({docs.length})
+        </button>
+        <button style={tabStyle(tab === 'files')} onClick={() => setTab('files')}>
+          <Paperclip size={12} strokeWidth={2} style={{ display: 'inline', marginRight: 6 }} />
+          Fichiers ({files.length})
+        </button>
+      </div>
+
+      {tab === 'docs' && (
+        docs.length === 0 ? (
+          <p style={{ fontSize: 13, color: 'rgba(240,235,228,0.25)' }}>Aucun document disponible.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {docs.map(doc => (
+              <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
+                <FileText size={16} strokeWidth={1.5} style={{ color: 'rgba(232,148,106,0.6)', flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#f0ebe4' }}>{doc.title}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'rgba(240,235,228,0.3)', marginTop: 2 }}>
+                    <Clock size={10} strokeWidth={1.8} />
+                    {new Date(doc.updatedAt).toLocaleDateString('fr-FR')}
+                  </div>
                 </div>
+                <button onClick={() => exportPDF(doc)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: 'rgba(240,235,228,0.6)', cursor: 'pointer', fontSize: 12 }}>
+                  <Download size={12} strokeWidth={1.8} /> PDF
+                </button>
               </div>
-              <button onClick={() => exportPDF(doc)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: 'rgba(240,235,228,0.6)', cursor: 'pointer', fontSize: 12 }}>
-                <Download size={12} strokeWidth={1.8} /> PDF
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )
       )}
 
-      {/* Zone cachée pour export PDF */}
+      {tab === 'files' && (
+        files.length === 0 ? (
+          <p style={{ fontSize: 13, color: 'rgba(240,235,228,0.25)' }}>Aucun fichier disponible.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {files.map(f => (
+              <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
+                <span style={{ fontSize: 20, flexShrink: 0 }}>{fileIcon(f.mimeType)}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#f0ebe4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.originalName}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(240,235,228,0.3)', marginTop: 2 }}>
+                    {formatSize(f.size)} · {new Date(f.uploadedAt).toLocaleDateString('fr-FR')}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                  <button onClick={() => openFile(f.id)} title="Ouvrir"
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.08)', background: 'none', color: 'rgba(240,235,228,0.5)', cursor: 'pointer', fontSize: 12 }}>
+                    <Eye size={13} strokeWidth={1.8} />
+                  </button>
+                  <button onClick={() => openFile(f.id, true)} title="Télécharger"
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.08)', background: 'none', color: 'rgba(240,235,228,0.5)', cursor: 'pointer', fontSize: 12 }}>
+                    <Download size={13} strokeWidth={1.8} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      )}
+
       {selected && (
         <div ref={printRef} style={{ position: 'absolute', left: '-9999px', top: 0, width: 700, padding: 40, background: '#fff', color: '#000', fontFamily: 'sans-serif' }}>
           <h1 style={{ fontSize: 24, marginBottom: 24, borderBottom: '2px solid #e8946a', paddingBottom: 12 }}>{selected.title}</h1>
