@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { ChevronRight, Save, Trash2, Download, FileText } from 'lucide-react'
+import { linkifyHtmlContent } from '@/lib/richText'
 
 const RichEditor = dynamic(() => import('@/components/admin/RichEditor'), { ssr: false })
 
@@ -109,7 +110,7 @@ export default function DocumentEditPage() {
       {/* Zone cachée pour l'export PDF */}
       <div ref={printRef} style={{ position: 'absolute', left: '-9999px', top: 0, width: 700, padding: 40, background: '#fff', color: '#000', fontFamily: 'sans-serif' }}>
         <h1 style={{ fontSize: 24, marginBottom: 24, borderBottom: '2px solid #e8946a', paddingBottom: 12 }}>{title}</h1>
-        <div style={{ fontSize: 14, lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: content }} />
+        <div className="rich-content" style={{ fontSize: 14, lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: linkifyHtmlContent(content) }} />
         <div style={{ marginTop: 40, fontSize: 11, color: '#999', borderTop: '1px solid #eee', paddingTop: 12 }}>
           Creahub Solutions · {doc.project.name} · {new Date().toLocaleDateString('fr-FR')}
         </div>

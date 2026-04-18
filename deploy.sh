@@ -1,15 +1,16 @@
 #!/bin/bash
 set -e
 
+REGION="europe-west1"
 IMAGE="europe-west1-docker.pkg.dev/creahub-solutions/creahub/site:latest"
 
 echo "🔨 Build + push via Cloud Build..."
-gcloud builds submit --tag "$IMAGE" .
+gcloud builds submit --region "$REGION" --tag "$IMAGE" .
 
 echo "🚀 Déploiement sur Cloud Run..."
 gcloud run deploy creahub-site \
   --image "$IMAGE" \
-  --region europe-west1 \
+  --region "$REGION" \
   --platform managed \
   --allow-unauthenticated \
   --port 3000 \
@@ -21,4 +22,4 @@ gcloud run deploy creahub-site \
   --set-env-vars="NEXT_PUBLIC_APP_URL=https://creahub-solutions.fr"
 
 echo "✅ Déployé !"
-gcloud run services describe creahub-site --region europe-west1 --format="value(status.url)"
+gcloud run services describe creahub-site --region "$REGION" --format="value(status.url)"

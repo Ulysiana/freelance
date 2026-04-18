@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import { linkifyHtmlContent } from '@/lib/richText'
 
 const TaskComments = dynamic(() => import('@/components/admin/TaskComments'), { ssr: false })
 const AttachmentUploader = dynamic(() => import('@/components/admin/AttachmentUploader'), { ssr: false })
@@ -69,8 +70,8 @@ export default function ClientTaskPage() {
       {task.description && (
         <div style={{ marginBottom: 24 }}>
           <label style={{ fontSize: 11, color: 'rgba(240,235,228,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 8 }}>Description</label>
-          <div style={{ fontSize: 13, color: 'rgba(240,235,228,0.75)', lineHeight: 1.7, padding: '12px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.06)' }}
-            dangerouslySetInnerHTML={{ __html: task.description }} />
+          <div className="rich-content" style={{ fontSize: 13, color: 'rgba(240,235,228,0.75)', lineHeight: 1.7, padding: '12px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: 8, border: '1px solid rgba(255,255,255,0.06)' }}
+            dangerouslySetInnerHTML={{ __html: linkifyHtmlContent(task.description) }} />
         </div>
       )}
 

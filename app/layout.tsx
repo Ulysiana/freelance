@@ -6,6 +6,7 @@ import CookieBanner from "@/components/CookieBanner";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://creahub-solutions.fr"),
   title: "Creahub Solutions – Développeuse Freelance · Python, React, WordPress, Cloud",
   description:
     "Creahub Solutions — développeuse freelance full-stack. Python, React, Node, Rust, WordPress, Shopify, Cloud Run, Neon. Audit SEO, migrations, apps desktop & mobile. 100 % remote · 590 €/j.",

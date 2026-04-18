@@ -4,6 +4,12 @@ import FadeIn from "./FadeIn";
 
 export default function Contact() {
   const [type, setType] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [company, setCompany] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [feedback, setFeedback] = useState("");
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
@@ -18,6 +24,36 @@ export default function Contact() {
     transition: "border-color 0.2s",
     marginBottom: 14,
   };
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setStatus("loading");
+    setFeedback("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, projectType: type, message, company }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Impossible d'envoyer le message.");
+      }
+
+      setStatus("success");
+      setFeedback("Message envoyé. Je vous réponds sous 24 h.");
+      setName("");
+      setEmail("");
+      setType("");
+      setMessage("");
+      setCompany("");
+    } catch (error) {
+      setStatus("error");
+      setFeedback(error instanceof Error ? error.message : "Impossible d'envoyer le message.");
+    }
+  }
 
   return (
     <section
@@ -51,16 +87,19 @@ export default function Contact() {
         {/* Form */}
         <FadeIn delay={0.1}>
           <div className="glass" style={{ padding: "32px 28px" }}>
-            <form>
+            <form onSubmit={handleSubmit}>
               <label style={{ display: "block", fontSize: 12, color: "rgba(240,235,228,0.5)", marginBottom: 6, letterSpacing: "0.05em" }}>
                 NOM
               </label>
               <input
                 type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Votre nom"
                 style={inputStyle}
                 onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(232,148,106,0.4)")}
                 onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+                required
               />
 
               <label style={{ display: "block", fontSize: 12, color: "rgba(240,235,228,0.5)", marginBottom: 6, letterSpacing: "0.05em" }}>
@@ -68,10 +107,22 @@ export default function Contact() {
               </label>
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="vous@exemple.com"
                 style={inputStyle}
                 onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(232,148,106,0.4)")}
                 onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+                required
+              />
+
+              <input
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                style={{ display: "none" }}
               />
 
               <label style={{ display: "block", fontSize: 12, color: "rgba(240,235,228,0.5)", marginBottom: 6, letterSpacing: "0.05em" }}>
@@ -96,6 +147,8 @@ export default function Contact() {
                 VOTRE PROJET
               </label>
               <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 placeholder="Quelques lignes sur votre projet, votre contexte, vos délais…"
                 style={{
                   ...inputStyle,
@@ -105,10 +158,12 @@ export default function Contact() {
                 }}
                 onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(232,148,106,0.4)")}
                 onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+                required
               />
 
               <button
                 type="submit"
+                disabled={status === "loading"}
                 style={{
                   width: "100%",
                   padding: "13px",
@@ -122,6 +177,7 @@ export default function Contact() {
                   letterSpacing: "-0.01em",
                   boxShadow: "0 0 30px rgba(232,148,106,0.2)",
                   transition: "all 0.3s ease",
+                  opacity: status === "loading" ? 0.7 : 1,
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.boxShadow = "0 0 50px rgba(232,148,106,0.35)";
@@ -132,8 +188,21 @@ export default function Contact() {
                   e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
-                Envoyer →
+                {status === "loading" ? "Envoi..." : "Envoyer →"}
               </button>
+
+              {feedback && (
+                <p
+                  style={{
+                    marginTop: 14,
+                    fontSize: 13,
+                    color: status === "success" ? "#86efac" : "#fca5a5",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {feedback}
+                </p>
+              )}
             </form>
           </div>
         </FadeIn>

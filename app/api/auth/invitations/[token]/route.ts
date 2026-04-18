@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { prisma } from '@/lib/db/prisma'
 import { createUser, createSession } from '@/lib/db/users'
 import { validatePassword } from '@/lib/password'
+import { rateLimit } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,6 +17,9 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ token:
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
+  const rateLimitResponse = rateLimit(req, { key: 'auth-invitation-accept', windowMs: 15 * 60_000, max: 10 })
+  if (rateLimitResponse) return rateLimitResponse
+
   const { token } = await params
   const inv = await prisma.invitation.findUnique({ where: { token } })
   if (!inv || inv.usedAt || inv.expiresAt < new Date()) {
@@ -38,9 +42,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
   cookieStore.set('session_token', session.token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'strict',
     maxAge: 7 * 24 * 60 * 60,
     path: '/',
+    priority: 'high',
   })
 
   return NextResponse.json({ user })

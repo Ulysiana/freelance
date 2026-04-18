@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { FileText, Download, ChevronRight, Clock, Eye, Paperclip } from 'lucide-react'
 import Link from 'next/link'
+import { linkifyHtmlContent } from '@/lib/richText'
 
 type Doc = {
   id: string; title: string; content: string; updatedAt: string
@@ -165,7 +166,7 @@ export default function ClientDocumentsPage() {
       {selected && (
         <div ref={printRef} style={{ position: 'absolute', left: '-9999px', top: 0, width: 700, padding: 40, background: '#fff', color: '#000', fontFamily: 'sans-serif' }}>
           <h1 style={{ fontSize: 24, marginBottom: 24, borderBottom: '2px solid #e8946a', paddingBottom: 12 }}>{selected.title}</h1>
-          <div style={{ fontSize: 14, lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: selected.content }} />
+          <div className="rich-content" style={{ fontSize: 14, lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: linkifyHtmlContent(selected.content) }} />
           <div style={{ marginTop: 40, fontSize: 11, color: '#999', borderTop: '1px solid #eee', paddingTop: 12 }}>
             Creahub Solutions · {projectName} · {new Date().toLocaleDateString('fr-FR')}
           </div>

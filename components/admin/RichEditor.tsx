@@ -2,20 +2,33 @@
 
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import Link from '@tiptap/extension-link'
 import Underline from '@tiptap/extension-underline'
 import { useEffect } from 'react'
+import { linkifyHtmlContent } from '@/lib/richText'
 
 export default function RichEditor({ value, onChange }: { value: string; onChange: (html: string) => void }) {
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, Underline],
-    content: value,
+    extensions: [
+      StarterKit,
+      Underline,
+      Link.configure({
+        autolink: true,
+        defaultProtocol: 'https',
+        linkOnPaste: true,
+        openOnClick: true,
+      }),
+    ],
+    content: linkifyHtmlContent(value),
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
   })
 
   useEffect(() => {
-    if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value)
+    const normalizedValue = linkifyHtmlContent(value)
+
+    if (editor && normalizedValue !== editor.getHTML()) {
+      editor.commands.setContent(normalizedValue)
     }
   }, [value, editor])
 
@@ -37,7 +50,7 @@ export default function RichEditor({ value, onChange }: { value: string; onChang
           <button type="button" onClick={() => editor.chain().focus().toggleCodeBlock().run()} style={btn(editor.isActive('codeBlock'))}>{'</>'}</button>
         </div>
       )}
-      <EditorContent editor={editor} style={{ padding: '10px 14px', minHeight: 120, fontSize: 14, color: '#f0ebe4', lineHeight: 1.7 }} />
+      <EditorContent className="rich-content" editor={editor} style={{ padding: '10px 14px', minHeight: 120, fontSize: 14, color: '#f0ebe4', lineHeight: 1.7 }} />
     </div>
   )
 }

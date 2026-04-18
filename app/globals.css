@@ -140,6 +140,17 @@ body::before {
 .ProseMirror code { background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; font-size: 12px; font-family: monospace; }
 .ProseMirror pre { background: rgba(255,255,255,0.06); padding: 12px; border-radius: 8px; }
 .ProseMirror pre code { background: none; padding: 0; }
+.ProseMirror a,
+.rich-content a {
+  color: #6bb6ff;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+  text-decoration-thickness: 1px;
+}
+.ProseMirror a:hover,
+.rich-content a:hover {
+  color: #95ccff;
+}
 
 /* ── Separator line ── */
 .amber-line {

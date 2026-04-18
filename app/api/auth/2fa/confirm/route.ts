@@ -4,6 +4,7 @@ import { createHmac } from 'crypto'
 import { verifySync } from 'otplib'
 import { prisma } from '@/lib/db/prisma'
 import { createSession } from '@/lib/db/users'
+import { getRequiredEnv, rateLimit } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,13 +14,14 @@ const COOKIE_MAX_AGE = 7 * 24 * 60 * 60
 
 function verifyChallenge(token: string): string | null {
   try {
+    const secretKey = getRequiredEnv('SECRET_KEY')
     const decoded = Buffer.from(token, 'base64url').toString()
     const parts = decoded.split(':')
     if (parts.length !== 3) return null
     const [userId, expires, sig] = parts
     if (Date.now() > Number(expires)) return null
     const payload = `${userId}:${expires}`
-    const expected = createHmac('sha256', process.env.SECRET_KEY || 'fallback-secret').update(payload).digest('hex')
+    const expected = createHmac('sha256', secretKey).update(payload).digest('hex')
     if (sig !== expected) return null
     return userId
   } catch {
@@ -28,6 +30,9 @@ function verifyChallenge(token: string): string | null {
 }
 
 export async function POST(req: NextRequest) {
+  const rateLimitResponse = rateLimit(req, { key: 'auth-otp-confirm', windowMs: 5 * 60_000, max: 10 })
+  if (rateLimitResponse) return rateLimitResponse
+
   const cookieStore = await cookies()
   const challenge = cookieStore.get(OTP_COOKIE)?.value
   if (!challenge) return NextResponse.json({ error: 'Session expirée' }, { status: 401 })
@@ -49,9 +54,10 @@ export async function POST(req: NextRequest) {
   cookieStore.set(SESSION_COOKIE, session.token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'strict',
     maxAge: COOKIE_MAX_AGE,
     path: '/',
+    priority: 'high',
   })
 
   return NextResponse.json({ role: user.role })
