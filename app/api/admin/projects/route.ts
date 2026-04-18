@@ -13,9 +13,12 @@ async function requireAdmin() {
   return user?.role === 'ADMIN' ? user : null
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
-  const projects = await getAllProjects()
+  const clientId = req.nextUrl.searchParams.get('clientId')
+  const projects = clientId
+    ? await getAllProjects().then(all => all.filter((p: { clientId: string }) => p.clientId === clientId))
+    : await getAllProjects()
   return NextResponse.json({ projects })
 }
 

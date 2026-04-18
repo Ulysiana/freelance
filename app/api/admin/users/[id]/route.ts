@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { validateSession, updateUser, deleteUser } from '@/lib/db/users'
+import { prisma } from '@/lib/db/prisma'
 import type { Role } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
@@ -12,6 +13,18 @@ async function requireAdmin() {
   if (!token) return null
   const user = await validateSession(token)
   return user?.role === 'ADMIN' ? user : null
+}
+
+export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const admin = await requireAdmin()
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+  const { id } = await params
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, name: true, email: true, phone: true, company: true, address: true, role: true, createdAt: true, pseudo: true },
+  })
+  if (!user) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
+  return NextResponse.json({ user })
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

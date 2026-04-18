@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
 type User = { id: string; name: string | null; pseudo: string | null; email: string; role: string; createdAt: string }
 type ModalState = { mode: 'create' } | { mode: 'edit'; user: User } | null
@@ -141,6 +142,9 @@ export default function UsersPage() {
                   <td style={{ padding: '14px 16px', color: 'rgba(240,235,228,0.35)', fontSize: 13 }}>{new Date(u.createdAt).toLocaleDateString('fr-FR')}</td>
                   <td style={{ padding: '14px 16px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                      {u.role === 'CLIENT' && (
+                        <Link href={`/bureau/clients/${u.id}`} style={{ padding: '5px 12px', borderRadius: 6, background: 'none', border: '1px solid rgba(232,148,106,0.25)', color: '#e8946a', fontSize: 12, textDecoration: 'none' }}>Fiche</Link>
+                      )}
                       <button onClick={() => setModal({ mode: 'edit', user: u })} style={{ padding: '5px 12px', borderRadius: 6, background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,235,228,0.6)', cursor: 'pointer', fontSize: 12 }}>Modifier</button>
                       <button onClick={() => handleDelete(u.id)} disabled={deleting === u.id} style={{ padding: '5px 12px', borderRadius: 6, background: 'none', border: '1px solid rgba(220,50,50,0.25)', color: 'rgba(248,113,113,0.7)', cursor: 'pointer', fontSize: 12, opacity: deleting === u.id ? 0.5 : 1 }}>
                         {deleting === u.id ? '...' : 'Supprimer'}
