@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { validateSession, updateUser, deleteUser } from '@/lib/db/users'
 import { prisma } from '@/lib/db/prisma'
+import { validatePassword } from '@/lib/password'
 import type { Role } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
@@ -32,6 +33,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
   const { id } = await params
   const { name, pseudo, email, password, role } = await request.json()
+  if (password) {
+    const pwdError = validatePassword(password)
+    if (pwdError) return NextResponse.json({ error: pwdError }, { status: 400 })
+  }
   const user = await updateUser(id, { name, pseudo, email, password, role: role as Role | undefined })
   return NextResponse.json({ user })
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/db/prisma'
 import { createUser, createSession } from '@/lib/db/users'
+import { validatePassword } from '@/lib/password'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,6 +24,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
 
   const { email, password, name } = await req.json()
   if (!email || !password) return NextResponse.json({ error: 'Email et mot de passe requis' }, { status: 400 })
+  const pwdError = validatePassword(password)
+  if (pwdError) return NextResponse.json({ error: pwdError }, { status: 400 })
 
   const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } })
   if (existing) return NextResponse.json({ error: 'Un compte existe déjà avec cet email' }, { status: 409 })

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { validateSession, getAllUsers, createUser } from '@/lib/db/users'
 import { prisma } from '@/lib/db/prisma'
+import { validatePassword } from '@/lib/password'
 import type { Role } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
@@ -28,6 +29,8 @@ export async function POST(request: NextRequest) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
   const { email, password, name, pseudo, role } = await request.json()
   if (!email || !password) return NextResponse.json({ error: 'Email et mot de passe requis' }, { status: 400 })
+  const pwdError = validatePassword(password)
+  if (pwdError) return NextResponse.json({ error: pwdError }, { status: 400 })
   try {
     const user = await createUser(email, password, name, pseudo, (role as Role) || 'CLIENT')
     return NextResponse.json({ user }, { status: 201 })

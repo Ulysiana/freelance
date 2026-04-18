@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { passwordStrength } from '@/lib/password'
 
 const roleLabel: Record<string, string> = { CLIENT: 'client', ADMIN: 'administrateur', COLLABORATEUR: 'collaborateur' }
 
@@ -77,7 +78,21 @@ export default function RejoindPage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <label style={{ fontSize: 12, color: 'rgba(240,235,228,0.5)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Mot de passe</label>
-                <input style={input} type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required minLength={8} placeholder="8 caractères minimum" />
+                <input style={input} type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required placeholder="10 car. min, maj, chiffre, symbole" />
+                {form.password.length > 0 && (() => {
+                  const s = passwordStrength(form.password)
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div style={{ display: 'flex', gap: 3 }}>
+                        {[1,2,3,4,5].map(i => (
+                          <div key={i} style={{ flex: 1, height: 3, borderRadius: 2, background: i <= s.score ? s.color : 'rgba(255,255,255,0.08)', transition: 'background 0.2s' }} />
+                        ))}
+                      </div>
+                      <span style={{ fontSize: 11, color: s.color }}>{s.label}</span>
+                    </div>
+                  )
+                })()}
+                <p style={{ fontSize: 11, color: 'rgba(240,235,228,0.3)', margin: 0 }}>10 caractères min. · 1 majuscule · 1 chiffre · 1 caractère spécial</p>
               </div>
               <button type="submit" disabled={loading}
                 style={{ marginTop: 4, padding: '12px', borderRadius: 999, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontSize: 14, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>

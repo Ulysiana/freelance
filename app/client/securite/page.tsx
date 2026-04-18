@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ShieldCheck, Copy, Check } from 'lucide-react'
+import { ShieldCheck, Copy, Check, X } from 'lucide-react'
 
 export default function ClientSecuritePage() {
   const router = useRouter()
@@ -50,14 +50,21 @@ export default function ClientSecuritePage() {
           <span style={{ fontSize: 20, fontWeight: 800, color: '#e8946a' }}>Creahub<span style={{ color: 'rgba(232,148,106,0.5)', fontWeight: 400 }}> Solutions</span></span>
         </div>
         <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '32px 28px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <ShieldCheck size={24} strokeWidth={1.5} style={{ color: '#e8946a', flexShrink: 0 }} />
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 700 }}>Sécuriser votre compte</div>
-              <div style={{ fontSize: 12, color: 'rgba(240,235,228,0.45)', marginTop: 2, lineHeight: 1.5 }}>
-                Pour accéder à votre espace, vous devez configurer la double authentification.
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <ShieldCheck size={24} strokeWidth={1.5} style={{ color: '#e8946a', flexShrink: 0 }} />
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700 }}>Double authentification (2FA)</div>
+                <div style={{ fontSize: 12, color: 'rgba(240,235,228,0.45)', marginTop: 2, lineHeight: 1.5 }}>
+                  Recommandé pour sécuriser votre compte. Vous pouvez l'activer maintenant ou plus tard.
+                </div>
               </div>
             </div>
+            <button onClick={() => router.push('/client')}
+              style={{ background: 'none', border: 'none', color: 'rgba(240,235,228,0.3)', cursor: 'pointer', padding: 4, flexShrink: 0 }}
+              title="Configurer plus tard">
+              <X size={16} strokeWidth={1.8} />
+            </button>
           </div>
 
           {qr && (
@@ -92,7 +99,11 @@ export default function ClientSecuritePage() {
             />
             <button onClick={verify} disabled={loading || code.length !== 6}
               style={{ padding: '12px', borderRadius: 999, border: 'none', background: code.length === 6 ? 'linear-gradient(135deg, #e8946a, #c27b5b)' : 'rgba(255,255,255,0.05)', color: code.length === 6 ? '#fff' : 'rgba(240,235,228,0.3)', fontWeight: 700, fontSize: 14, cursor: code.length === 6 ? 'pointer' : 'default' }}>
-              {loading ? 'Vérification...' : 'Activer et accéder à mon espace'}
+              {loading ? 'Vérification...' : 'Activer le 2FA'}
+            </button>
+            <button onClick={() => router.push('/client')}
+              style={{ padding: '10px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.08)', background: 'none', color: 'rgba(240,235,228,0.4)', fontSize: 13, cursor: 'pointer' }}>
+              Configurer plus tard
             </button>
           </div>
         </div>
