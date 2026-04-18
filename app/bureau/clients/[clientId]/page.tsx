@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronRight, User, FolderKanban, FileText, Receipt, Upload, Eye, Download, Trash2, Plus, Check, X } from 'lucide-react'
+import { currencySymbol, formatAmount } from '@/lib/currency'
 
 type Client = { id: string; name: string | null; email: string; phone: string | null; company: string | null; address: string | null; createdAt: string }
 type Project = { id: string; name: string; status: string; updatedAt: string }
@@ -30,6 +31,7 @@ export default function ClientFichePage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [contracts, setContracts] = useState<Contract[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [currency, setCurrency] = useState('EUR')
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const [contractLabel, setContractLabel] = useState('')
@@ -49,11 +51,13 @@ export default function ClientFichePage() {
       fetch(`/api/admin/projects?clientId=${clientId}`).then(r => r.json()),
       fetch(`/api/admin/clients/${clientId}/contracts`).then(r => r.json()),
       fetch(`/api/admin/clients/${clientId}/invoices`).then(r => r.json()),
-    ]).then(([u, p, c, i]) => {
+      fetch('/api/admin/settings').then(r => r.json()),
+    ]).then(([u, p, c, i, s]) => {
       setClient(u.user)
       setProjects(p.projects || [])
       setContracts(c.contracts || [])
       setInvoices(i.invoices || [])
+      setCurrency(s.currency || 'EUR')
     })
   }, [clientId])
 
@@ -263,7 +267,9 @@ export default function ClientFichePage() {
                     <input style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }} value={invNumber} onChange={e => setInvNumber(e.target.value)} placeholder="2024-001" />
                   </div>
                   <div>
-                    <label style={{ fontSize: 11, color: 'rgba(240,235,228,0.4)', display: 'block', marginBottom: 4 }}>Montant TTC (€) *</label>
+                    <label style={{ fontSize: 11, color: 'rgba(240,235,228,0.4)', display: 'block', marginBottom: 4 }}>
+                      Montant TTC ({currencySymbol(currency)}) *
+                    </label>
                     <input style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }} type="number" value={invAmount} onChange={e => setInvAmount(e.target.value)} placeholder="1200" />
                   </div>
                   <div>
@@ -311,7 +317,7 @@ export default function ClientFichePage() {
                   </div>
                 </div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#f0ebe4' }}>
-                  {inv.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+                  {formatAmount(inv.amount, currency, 0)}
                 </div>
                 {/* Statut cliquable */}
                 <select value={inv.status} onChange={e => updateInvoiceStatus(inv.id, e.target.value)}

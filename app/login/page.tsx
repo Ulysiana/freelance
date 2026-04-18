@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -7,6 +8,7 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const from = searchParams.get('from') || '/bureau'
+  const reset = searchParams.get('reset') === '1'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -42,6 +44,11 @@ function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {reset && (
+        <div style={{ background: 'rgba(134,239,172,0.08)', border: '1px solid rgba(134,239,172,0.22)', color: '#86efac', padding: '10px 14px', borderRadius: 8, fontSize: 13 }}>
+          Mot de passe mis à jour. Tu peux te reconnecter.
+        </div>
+      )}
       {error && (
         <div style={{ background: 'rgba(220,50,50,0.1)', border: '1px solid rgba(220,50,50,0.3)', color: '#f87171', padding: '10px 14px', borderRadius: 8, fontSize: 13 }}>
           {error}
@@ -60,6 +67,11 @@ function LoginForm() {
           type="password" value={password} onChange={e => setPassword(e.target.value)} required
           style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px', color: '#f0ebe4', fontSize: 14, outline: 'none' }}
         />
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Link href="/mot-de-passe-oublie" style={{ fontSize: 12, color: '#e8946a', textDecoration: 'none' }}>
+            Mot de passe oublié ?
+          </Link>
+        </div>
       </div>
       <button
         type="submit" disabled={loading}

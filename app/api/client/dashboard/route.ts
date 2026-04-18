@@ -14,7 +14,12 @@ export async function GET() {
 
   const since7days = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
-  const [projects, recentMessages, recentRequests, recentDocs, invoicesPending] = await Promise.all([
+  const [settings, projects, recentMessages, recentRequests, recentDocs, invoicesPending] = await Promise.all([
+    prisma.appSettings.upsert({
+      where: { id: 'default' },
+      create: { id: 'default', hoursPerDay: 8, currency: 'EUR' },
+      update: {},
+    }),
     prisma.project.findMany({
       where: { clientId: user.id, status: { not: 'ARCHIVED' } },
       orderBy: { updatedAt: 'desc' },
@@ -37,8 +42,6 @@ export async function GET() {
           take: 3,
           select: { id: true, title: true, status: true, updatedAt: true },
         },
-        // Time sessions via tasks via phases
-        _count: { select: {} },
       },
     }),
 
@@ -102,5 +105,12 @@ export async function GET() {
     estimatedCost: p.tjm > 0 ? ((timeByProject[p.id] || 0) / 28800) * p.tjm : null,
   }))
 
-  return NextResponse.json({ projects: projectsWithTime, recentMessages, recentRequests, recentDocs, invoicesPending })
+  return NextResponse.json({
+    currency: settings.currency,
+    projects: projectsWithTime,
+    recentMessages,
+    recentRequests,
+    recentDocs,
+    invoicesPending,
+  })
 }

@@ -8,6 +8,7 @@ import { ChevronRight, Save, Trash2, Download, FileText } from 'lucide-react'
 import { linkifyHtmlContent } from '@/lib/richText'
 
 const RichEditor = dynamic(() => import('@/components/admin/RichEditor'), { ssr: false })
+const DocumentComments = dynamic(() => import('@/components/admin/DocumentComments'), { ssr: false })
 
 type Doc = {
   id: string; title: string; content: string; updatedAt: string
@@ -23,6 +24,8 @@ export default function DocumentEditPage() {
   const [content, setContent] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [currentUserId, setCurrentUserId] = useState('')
+  const [currentUserRole, setCurrentUserRole] = useState('')
   const printRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -30,6 +33,10 @@ export default function DocumentEditPage() {
       setDoc(d.document)
       setTitle(d.document.title)
       setContent(d.document.content)
+    })
+    fetch('/api/auth/me').then(r => r.json()).then(d => {
+      setCurrentUserId(d.user?.id || '')
+      setCurrentUserRole(d.user?.role || '')
     })
   }, [docId])
 
@@ -105,6 +112,11 @@ export default function DocumentEditPage() {
           <Trash2 size={13} strokeWidth={1.8} />
           Supprimer
         </button>
+      </div>
+
+      <div style={{ marginTop: 28 }}>
+        <label style={{ fontSize: 11, color: 'rgba(240,235,228,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 10 }}>Remarques</label>
+        {currentUserId && <DocumentComments documentId={docId} currentUserId={currentUserId} currentUserRole={currentUserRole} />}
       </div>
 
       {/* Zone cachée pour l'export PDF */}

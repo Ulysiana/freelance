@@ -17,6 +17,11 @@ export async function getProjectById(id: string) {
     include: {
       client: { select: { id: true, name: true, pseudo: true, email: true } },
       collaborators: { include: { collaborator: { select: { id: true, name: true, pseudo: true } } } },
+      _count: { select: { messages: true, documents: true, requests: true, phases: true, htmlPages: true } },
+      messages: { orderBy: { createdAt: 'desc' }, take: 3, select: { id: true, content: true, createdAt: true, author: { select: { name: true, pseudo: true, role: true } } } },
+      documents: { orderBy: { updatedAt: 'desc' }, take: 3, select: { id: true, title: true, updatedAt: true } },
+      requests: { orderBy: { updatedAt: 'desc' }, take: 3, select: { id: true, title: true, status: true, updatedAt: true } },
+      phases: { select: { id: true, _count: { select: { tasks: true } }, tasks: { select: { status: true } } } },
     },
   })
 }

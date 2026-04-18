@@ -11,6 +11,24 @@ type Project = {
   billingType: string; tjm: number; forfaitAmount: number | null; createdAt: string
   client: { id: string; name: string | null; pseudo: string | null; email: string }
   collaborators: { collaborator: { id: string; name: string | null; pseudo: string | null } }[]
+  _count: { messages: number; documents: number; requests: number; phases: number; htmlPages: number }
+  messages: { id: string; content: string; createdAt: string; author: { name: string | null; pseudo: string | null; role: string } }[]
+  documents: { id: string; title: string; updatedAt: string }[]
+  requests: { id: string; title: string; status: string; updatedAt: string }[]
+  phases: { id: string; _count: { tasks: number }; tasks: { status: string }[] }[]
+}
+
+function SectionCard({ href, label, icon: Icon, count, children }: { href: string; label: string; icon: React.ElementType; count: number; children?: React.ReactNode }) {
+  return (
+    <Link href={href} style={{ display: 'block', padding: '14px 16px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,235,228,0.7)', textDecoration: 'none', transition: 'border-color 0.15s' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: children ? 10 : 0 }}>
+        <Icon size={13} strokeWidth={1.8} />
+        <span style={{ fontSize: 13, fontWeight: 500, flex: 1 }}>{label}</span>
+        <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 7px', borderRadius: 999, background: count > 0 ? 'rgba(134,239,172,0.12)' : 'rgba(255,255,255,0.04)', color: count > 0 ? '#86efac' : 'rgba(240,235,228,0.25)', border: `1px solid ${count > 0 ? 'rgba(134,239,172,0.2)' : 'rgba(255,255,255,0.06)'}` }}>{count}</span>
+      </div>
+      {children && <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>{children}</div>}
+    </Link>
+  )
 }
 
 const statusLabel: Record<string, string> = { DRAFT: 'Brouillon', ACTIVE: 'Actif', ARCHIVED: 'Archivé' }
@@ -197,20 +215,46 @@ export default function ProjetDetailPage() {
         </div>
       )}
 
-      <div style={{ marginBottom: 16, display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8 }}>
-        {[
-          { href: `/bureau/projets/${id}/taches`,    label: 'Phases & Tâches', icon: Kanban },
-          ...(!isForfait ? [{ href: `/bureau/projets/${id}/temps`, label: 'Suivi du temps', icon: Clock }] : []),
-          { href: `/bureau/projets/${id}/demandes`,  label: 'Demandes',        icon: MessageCirclePlus },
-          { href: `/bureau/projets/${id}/documents`, label: 'Documents',       icon: FileText },
-          { href: `/bureau/projets/${id}/pages`,     label: 'Pages HTML',      icon: Globe },
-          { href: `/bureau/projets/${id}/messages`,  label: 'Messages',        icon: MessageSquare },
-        ].map(({ href, label, icon: Icon }) => (
-          <Link key={href} href={href} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: isMobile ? '10px 12px' : '10px 18px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,235,228,0.7)', textDecoration: 'none', fontSize: isMobile ? 12 : 13 }}>
-            <Icon size={13} strokeWidth={1.8} />
-            {label}
-          </Link>
-        ))}
+      <div style={{ marginBottom: 16, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 10 }}>
+        {/* Phases & Tâches */}
+        {(() => {
+          const allTasks = (project.phases ?? []).flatMap(p => p.tasks)
+          const done = allTasks.filter(t => t.status === 'DONE' || t.status === 'VALIDATED').length
+          const total = allTasks.length
+          const taskCount = total
+          return (
+            <SectionCard href={`/bureau/projets/${id}/taches`} label="Phases & Tâches" icon={Kanban} count={taskCount}>
+              {taskCount > 0 && <div style={{ fontSize: 12, color: 'rgba(240,235,228,0.4)' }}>{done}/{total} terminées · {project.phases.length} phase{project.phases.length > 1 ? 's' : ''}</div>}
+            </SectionCard>
+          )
+        })()}
+        {/* Messages */}
+        <SectionCard href={`/bureau/projets/${id}/messages`} label="Messages" icon={MessageSquare} count={project._count?.messages ?? 0}>
+          {project.messages.slice(0, 2).map(m => (
+            <div key={m.id} style={{ fontSize: 12, color: 'rgba(240,235,228,0.45)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{ color: '#e8946a', marginRight: 4 }}>{m.author.pseudo || m.author.name || '?'}</span>{m.content}
+            </div>
+          ))}
+        </SectionCard>
+        {/* Demandes */}
+        <SectionCard href={`/bureau/projets/${id}/demandes`} label="Demandes" icon={MessageCirclePlus} count={project._count?.requests ?? 0}>
+          {project.requests.slice(0, 2).map(r => (
+            <div key={r.id} style={{ fontSize: 12, color: 'rgba(240,235,228,0.45)', display: 'flex', gap: 6, alignItems: 'center' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: r.status === 'PENDING' ? '#e8946a' : r.status === 'ACCEPTED' ? '#86efac' : 'rgba(240,235,228,0.2)', flexShrink: 0 }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title}</span>
+            </div>
+          ))}
+        </SectionCard>
+        {/* Documents */}
+        <SectionCard href={`/bureau/projets/${id}/documents`} label="Documents" icon={FileText} count={project._count?.documents ?? 0}>
+          {project.documents.slice(0, 2).map(d => (
+            <div key={d.id} style={{ fontSize: 12, color: 'rgba(240,235,228,0.45)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.title}</div>
+          ))}
+        </SectionCard>
+        {/* Pages HTML */}
+        <SectionCard href={`/bureau/projets/${id}/pages`} label="Pages HTML" icon={Globe} count={project._count?.htmlPages ?? 0} />
+        {/* Suivi du temps */}
+        {!isForfait && <SectionCard href={`/bureau/projets/${id}/temps`} label="Suivi du temps" icon={Clock} count={0} />}
       </div>
 
       <div style={{ display: 'flex', gap: 10 }}>

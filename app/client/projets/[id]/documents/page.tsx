@@ -118,12 +118,17 @@ export default function ClientDocumentsPage() {
               <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
                 <FileText size={16} strokeWidth={1.5} style={{ color: 'rgba(232,148,106,0.6)', flexShrink: 0 }} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#f0ebe4' }}>{doc.title}</div>
+                  <Link href={`/client/projets/${id}/documents/${doc.id}`} style={{ fontSize: 14, fontWeight: 600, color: '#f0ebe4', textDecoration: 'none' }}>
+                    {doc.title}
+                  </Link>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'rgba(240,235,228,0.3)', marginTop: 2 }}>
                     <Clock size={10} strokeWidth={1.8} />
                     {new Date(doc.updatedAt).toLocaleDateString('fr-FR')}
                   </div>
                 </div>
+                <Link href={`/client/projets/${id}/documents/${doc.id}`} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: 'rgba(240,235,228,0.6)', textDecoration: 'none', fontSize: 12 }}>
+                  <Eye size={12} strokeWidth={1.8} /> Consulter
+                </Link>
                 <button onClick={() => exportPDF(doc)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: 'rgba(240,235,228,0.6)', cursor: 'pointer', fontSize: 12 }}>
                   <Download size={12} strokeWidth={1.8} /> PDF
                 </button>

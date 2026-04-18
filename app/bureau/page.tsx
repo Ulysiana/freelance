@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FolderKanban, Users, Clock, MessageSquare, AlertCircle, TrendingUp, CheckCircle2, CircleDot, Circle, CheckSquare, ChevronDown, ChevronRight } from 'lucide-react'
 import { useIsMobile } from '@/lib/useIsMobile'
+import { formatAmount } from '@/lib/currency'
 
 type ClientWithProjects = {
   id: string
@@ -20,6 +21,7 @@ type ClientWithProjects = {
 }
 
 type DashboardData = {
+  currency: string
   stats: {
     activeProjects: number
     totalProjects: number
@@ -160,7 +162,7 @@ export default function AdminDashboard() {
     </div>
   )
 
-  const { stats, tasksByStatus, recentRequests, clientsWithProjects } = data
+  const { currency, stats, tasksByStatus, recentRequests, clientsWithProjects } = data
   const recentMessages = data.recentMessages.filter(m => !seenIds.has(m.id))
   const totalTasks = Object.values(tasksByStatus).reduce((a, b) => a + b, 0)
 
@@ -168,7 +170,7 @@ export default function AdminDashboard() {
     { label: 'Projets actifs',    value: stats.activeProjects,    sub: `${stats.totalProjects} au total`,   icon: FolderKanban, color: '#7dd3fc' },
     { label: 'Clients',           value: stats.totalClients,      sub: 'comptes clients',                   icon: Users,        color: '#86efac' },
     { label: 'Temps ce mois',     value: formatSeconds(stats.timeSecondsThisMonth), sub: 'temps pointé',   icon: Clock,        color: '#e8946a' },
-    { label: 'CA estimé ce mois', value: `${stats.revenueThisMonth} €`, sub: 'basé sur TJM',               icon: TrendingUp,   color: '#c084fc' },
+    { label: 'CA estimé ce mois', value: formatAmount(stats.revenueThisMonth, currency, 0), sub: 'basé sur TJM', icon: TrendingUp, color: '#c084fc' },
   ]
 
   return (

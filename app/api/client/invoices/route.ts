@@ -11,9 +11,16 @@ export async function GET() {
   if (!token) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   const user = await validateSession(token)
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-  const invoices = await prisma.invoice.findMany({
-    where: { clientId: user.id },
-    orderBy: { issuedAt: 'desc' },
-  })
-  return NextResponse.json({ invoices })
+  const [settings, invoices] = await Promise.all([
+    prisma.appSettings.upsert({
+      where: { id: 'default' },
+      create: { id: 'default', hoursPerDay: 8, currency: 'EUR' },
+      update: {},
+    }),
+    prisma.invoice.findMany({
+      where: { clientId: user.id },
+      orderBy: { issuedAt: 'desc' },
+    }),
+  ])
+  return NextResponse.json({ invoices, currency: settings.currency })
 }

@@ -17,7 +17,7 @@ export async function GET() {
 
   const settings = await prisma.appSettings.upsert({
     where: { id: 'default' },
-    create: { id: 'default', hoursPerDay: 8 },
+    create: { id: 'default', hoursPerDay: 8, currency: 'EUR' },
     update: {},
   })
   const secondsPerDay = settings.hoursPerDay * 3600
@@ -88,6 +88,7 @@ export async function GET() {
   }, 0)
 
   return NextResponse.json({
+    currency: settings.currency,
     stats: {
       activeProjects,
       totalProjects,

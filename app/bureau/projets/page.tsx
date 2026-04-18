@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Plus, User, Euro, ChevronRight, Circle, Zap, Archive } from 'lucide-react'
+import { Plus, User, ChevronRight, Circle, Zap, Archive } from 'lucide-react'
 import { useIsMobile } from '@/lib/useIsMobile'
+import { formatAmount } from '@/lib/currency'
 
 type Project = {
   id: string; name: string; description: string | null; status: string; tjm: number
@@ -17,12 +18,20 @@ const statusIcon: Record<string, React.ElementType> = { DRAFT: Circle, ACTIVE: Z
 
 export default function ProjetsPage() {
   const [projects, setProjects] = useState<Project[]>([])
+  const [currency, setCurrency] = useState('EUR')
   const [loading, setLoading] = useState(true)
   const [showArchived, setShowArchived] = useState(false)
   const isMobile = useIsMobile()
 
   useEffect(() => {
-    fetch('/api/admin/projects').then(r => r.json()).then(d => { setProjects(d.projects || []); setLoading(false) })
+    Promise.all([
+      fetch('/api/admin/projects').then(r => r.json()),
+      fetch('/api/admin/settings').then(r => r.json()),
+    ]).then(([d, s]) => {
+      setProjects(d.projects || [])
+      setCurrency(s.currency || 'EUR')
+      setLoading(false)
+    })
   }, [])
 
   const filtered = showArchived ? projects : projects.filter(p => p.status !== 'ARCHIVED')
@@ -57,7 +66,7 @@ export default function ProjetsPage() {
                   <span style={{ fontWeight: 600, fontSize: 15 }}>{p.name}</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, color: 'rgba(240,235,228,0.4)' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><User size={11} strokeWidth={1.8} />{p.client.pseudo || p.client.name || p.client.email}</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Euro size={11} strokeWidth={1.8} />{p.tjm}/j</span>
+                    <span>{formatAmount(p.tjm, currency, 0)}/j</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

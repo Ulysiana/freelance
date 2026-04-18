@@ -13,6 +13,7 @@ const navItems = [
   { href: '/bureau/users', label: 'Utilisateurs', icon: Users },
   { href: '/bureau/invitations', label: 'Invitations', icon: UserPlus },
   { href: '/bureau/securite', label: 'Sécurité', icon: ShieldCheck },
+  { href: '/bureau/parametres', label: 'Paramètres', icon: Settings },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

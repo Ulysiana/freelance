@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { User, FileText, Receipt, Shield, Save, Eye, Download, ChevronRight, Upload, Check } from 'lucide-react'
 import Link from 'next/link'
+import { formatAmount } from '@/lib/currency'
 
 type Profile = { id: string; name: string | null; email: string; phone: string | null; company: string | null; address: string | null }
 type Contract = { id: string; originalName: string; mimeType: string; size: number; label: string | null; uploadedAt: string; uploadedBy: { name: string | null; pseudo: string | null } }
@@ -24,6 +25,7 @@ export default function ComptePage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [contracts, setContracts] = useState<Contract[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [currency, setCurrency] = useState('EUR')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
@@ -36,6 +38,7 @@ export default function ComptePage() {
       setProfile(p.profile)
       setContracts(c.contracts || [])
       setInvoices(i.invoices || [])
+      setCurrency(i.currency || 'EUR')
     })
   }, [])
 
@@ -200,7 +203,7 @@ export default function ComptePage() {
                         </div>
                       </div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: '#f0ebe4', marginRight: 8 }}>
-                        {inv.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                        {formatAmount(inv.amount, currency)}
                       </div>
                       <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 999, background: invoiceStatusColor[inv.status] + '20', color: invoiceStatusColor[inv.status], fontWeight: 600, flexShrink: 0 }}>
                         {invoiceStatusLabel[inv.status]}

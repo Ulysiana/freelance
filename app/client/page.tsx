@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { FolderKanban, MessageSquare, FileText, AlertCircle, ChevronRight, Sparkles, Clock, Euro, Receipt, Plus } from 'lucide-react'
+import { FolderKanban, MessageSquare, FileText, AlertCircle, ChevronRight, Sparkles, Clock, Receipt, Plus } from 'lucide-react'
+import { currencySymbol, formatAmount } from '@/lib/currency'
 
 type Task = { id: string; status: string }
 type Phase = { tasks: Task[] }
@@ -20,6 +21,7 @@ type RecentDoc = { id: string; title: string; updatedAt: string; project: { id: 
 type InvoicePending = { id: string; number: string; amount: number; dueAt: string | null }
 
 type DashboardData = {
+  currency: string
   projects: Project[]
   recentMessages: RecentMessage[]
   recentRequests: RecentRequest[]
@@ -48,7 +50,7 @@ function formatTime(secs: number) {
   return `${h}h${m.toString().padStart(2, '0')}`
 }
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project, currency }: { project: Project; currency: string }) {
   const allTasks = project.phases.flatMap(p => p.tasks)
   const total = allTasks.length
   const done = allTasks.filter(t => t.status === 'DONE' || t.status === 'VALIDATED').length
@@ -96,8 +98,8 @@ function ProjectCard({ project }: { project: Project }) {
           </div>
           {project.estimatedCost !== null && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'rgba(240,235,228,0.45)' }}>
-              <Euro size={11} strokeWidth={1.8} style={{ color: '#86efac' }} />
-              {project.estimatedCost.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+              <span style={{ color: '#86efac', fontSize: 11, fontWeight: 700 }}>{currencySymbol(currency)}</span>
+              {formatAmount(project.estimatedCost, currency, 0)}
             </div>
           )}
         </div>
@@ -124,9 +126,20 @@ function ProjectCard({ project }: { project: Project }) {
 export default function ClientDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
 
+  const [error, setError] = useState<string | null>(null)
+
   useEffect(() => {
-    fetch('/api/client/dashboard').then(r => r.json()).then(setData)
+    fetch('/api/client/dashboard')
+      .then(r => r.ok ? r.json() : r.text().then(t => { throw new Error(`${r.status}: ${t.slice(0, 200)}`) }))
+      .then(setData)
+      .catch(e => setError(e.message))
   }, [])
+
+  if (error) return (
+    <div style={{ padding: 40 }}>
+      <p style={{ color: '#f87171', fontSize: 13, fontFamily: 'monospace' }}>{error}</p>
+    </div>
+  )
 
   if (!data) return (
     <div style={{ padding: 40 }}>
@@ -134,7 +147,7 @@ export default function ClientDashboard() {
     </div>
   )
 
-  const { projects, recentMessages, recentRequests, recentDocs, invoicesPending } = data
+  const { currency, projects, recentMessages, recentRequests, recentDocs, invoicesPending } = data
   const hasNews = recentMessages.length > 0 || recentRequests.length > 0 || recentDocs.length > 0
 
   return (
@@ -155,7 +168,7 @@ export default function ClientDashboard() {
               {invoicesPending.length} facture{invoicesPending.length > 1 ? 's' : ''} en attente de règlement
             </div>
             <div style={{ fontSize: 12, color: 'rgba(240,235,228,0.4)', marginTop: 1 }}>
-              {invoicesPending.map(i => `${i.number} — ${i.amount.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}`).join(' · ')}
+              {invoicesPending.map(i => `${i.number} — ${formatAmount(i.amount, currency, 0)}`).join(' · ')}
             </div>
           </div>
           <ChevronRight size={14} strokeWidth={1.5} style={{ color: '#f87171', flexShrink: 0 }} />
@@ -208,7 +221,7 @@ export default function ClientDashboard() {
               </Link>
             ))}
             {recentDocs.map(d => (
-              <Link key={d.id} href={`/client/projets/${d.project.id}/documents`} style={{ textDecoration: 'none', display: 'flex', gap: 12, padding: '10px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', alignItems: 'center' }}>
+              <Link key={d.id} href={`/client/projets/${d.project.id}/documents/${d.id}`} style={{ textDecoration: 'none', display: 'flex', gap: 12, padding: '10px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', alignItems: 'center' }}>
                 <FileText size={13} strokeWidth={1.8} style={{ color: '#7dd3fc', flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, color: 'rgba(240,235,228,0.4)', marginBottom: 1 }}>Document · {d.project.name}</div>
@@ -233,7 +246,7 @@ export default function ClientDashboard() {
           <p style={{ fontSize: 13, color: 'rgba(240,235,228,0.3)' }}>Aucun projet en cours.</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: projects.length === 1 ? '1fr' : '1fr 1fr', gap: 12 }}>
-            {projects.map(p => <ProjectCard key={p.id} project={p} />)}
+            {projects.map(p => <ProjectCard key={p.id} project={p} currency={currency} />)}
           </div>
         )}
       </div>
