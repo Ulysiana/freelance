@@ -14,10 +14,11 @@ export default function ClientSecuritePage() {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
+    let ignore = false
     fetch('/api/auth/2fa/setup').then(r => r.json()).then(d => {
-      setQr(d.qrDataUrl)
-      setSecret(d.secret)
+      if (!ignore) { setQr(d.qrDataUrl); setSecret(d.secret) }
     })
+    return () => { ignore = true }
   }, [])
 
   async function verify() {

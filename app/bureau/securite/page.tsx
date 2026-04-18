@@ -16,7 +16,9 @@ export default function SecuritePage() {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    fetch('/api/admin/me').then(r => r.json()).then(d => setMe(d.user))
+    let ignore = false
+    fetch('/api/admin/me').then(r => r.json()).then(d => { if (!ignore) setMe(d.user) })
+    return () => { ignore = true }
   }, [])
 
   async function startSetup() {
