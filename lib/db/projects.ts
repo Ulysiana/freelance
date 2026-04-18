@@ -34,7 +34,9 @@ export async function getProjectsByClientId(clientId: string) {
 export async function createProject(data: {
   name: string
   description?: string
+  billingType?: string
   tjm: number
+  forfaitAmount?: number | null
   clientId: string
   collaboratorIds?: string[]
 }) {
@@ -42,7 +44,9 @@ export async function createProject(data: {
     data: {
       name: data.name,
       description: data.description,
+      billingType: data.billingType || 'TJM',
       tjm: data.tjm,
+      forfaitAmount: data.forfaitAmount ?? null,
       clientId: data.clientId,
       collaborators: data.collaboratorIds?.length
         ? { create: data.collaboratorIds.map(id => ({ collaboratorId: id })) }
@@ -58,7 +62,9 @@ export async function createProject(data: {
 export async function updateProject(id: string, data: {
   name?: string
   description?: string
+  billingType?: string
   tjm?: number
+  forfaitAmount?: number | null
   status?: ProjectStatus
   clientId?: string
   collaboratorIds?: string[]

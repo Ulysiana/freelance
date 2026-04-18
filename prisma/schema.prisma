@@ -64,11 +64,13 @@ enum Role {
 
 model Project {
   id          String        @id @default(cuid())
-  name        String
-  description String?       @db.Text
-  status      ProjectStatus @default(DRAFT)
-  tjm         Float         @default(0)
-  clientId    String        @map("client_id")
+  name          String
+  description   String?       @db.Text
+  status        ProjectStatus @default(DRAFT)
+  billingType   String        @default("TJM") @map("billing_type")
+  tjm           Float         @default(0)
+  forfaitAmount Float?        @map("forfait_amount")
+  clientId      String        @map("client_id")
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
@@ -347,6 +349,7 @@ enum RequestStatus {
 model AppSettings {
   id          String @id @default("default")
   hoursPerDay Float  @default(8) @map("hours_per_day")
+  currency    String @default("EUR")
 
   @@map("app_settings")
 }

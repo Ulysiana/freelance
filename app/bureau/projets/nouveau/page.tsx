@@ -12,15 +12,22 @@ export default function NouveauProjetPage() {
   const router = useRouter()
   const [clients, setClients] = useState<User[]>([])
   const [collabs, setCollabs] = useState<User[]>([])
-  const [form, setForm] = useState({ name: '', description: '', tjm: '', clientId: '', collaboratorIds: [] as string[] })
+  const [currency, setCurrency] = useState('EUR')
+  const [form, setForm] = useState({
+    name: '', description: '', billingType: 'TJM', tjm: '', forfaitAmount: '', clientId: '', collaboratorIds: [] as string[],
+  })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    fetch('/api/admin/users').then(r => r.json()).then(d => {
+    Promise.all([
+      fetch('/api/admin/users').then(r => r.json()),
+      fetch('/api/admin/settings').then(r => r.json()),
+    ]).then(([d, s]) => {
       const users: User[] = d.users || []
       setClients(users.filter(u => u.role === 'CLIENT'))
       setCollabs(users.filter(u => u.role === 'COLLABORATEUR'))
+      setCurrency(s.currency || 'EUR')
     })
   }, [])
 
@@ -38,7 +45,16 @@ export default function NouveauProjetPage() {
     setError('')
     setLoading(true)
     try {
-      const res = await fetch('/api/admin/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+      const body = {
+        name: form.name,
+        description: form.description,
+        billingType: form.billingType,
+        tjm: form.billingType === 'TJM' ? parseFloat(form.tjm) || 0 : 0,
+        forfaitAmount: form.billingType === 'FORFAIT' ? parseFloat(form.forfaitAmount) || null : null,
+        clientId: form.clientId,
+        collaboratorIds: form.collaboratorIds,
+      }
+      const res = await fetch('/api/admin/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       const data = await res.json()
       if (!res.ok) { setError(data.error || 'Erreur'); return }
       router.push(`/bureau/projets/${data.project.id}`)
@@ -47,6 +63,7 @@ export default function NouveauProjetPage() {
   }
 
   const displayName = (u: User) => u.pseudo || u.name || u.email
+  const currSymbol = { EUR: '€', USD: '$', GBP: '£' }[currency] ?? '€'
 
   return (
     <div style={{ maxWidth: 640 }}>
@@ -62,9 +79,34 @@ export default function NouveauProjetPage() {
           <textarea style={{ ...inputStyle, minHeight: 100, resize: 'vertical' }} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
         </div>
 
-        <div><label style={labelStyle}>TJM (€/jour)</label>
-          <input style={inputStyle} type="number" min="0" step="1" value={form.tjm} onChange={e => setForm(f => ({ ...f, tjm: e.target.value }))} placeholder="0" />
+        {/* Mode de facturation */}
+        <div>
+          <label style={labelStyle}>Mode de facturation</label>
+          <div style={{ display: 'flex', gap: 10 }}>
+            {[
+              { value: 'TJM', label: 'TJM', desc: 'Taux journalier + chrono' },
+              { value: 'FORFAIT', label: 'Forfait', desc: 'Prix fixe, pas de chrono' },
+            ].map(opt => (
+              <button key={opt.value} type="button" onClick={() => setForm(f => ({ ...f, billingType: opt.value }))}
+                style={{ flex: 1, padding: '12px', borderRadius: 10, cursor: 'pointer', textAlign: 'left' as const, border: form.billingType === opt.value ? '2px solid #e8946a' : '1px solid rgba(255,255,255,0.08)', background: form.billingType === opt.value ? 'rgba(232,148,106,0.08)' : 'rgba(255,255,255,0.02)', transition: 'all 0.15s' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: form.billingType === opt.value ? '#e8946a' : '#f0ebe4', marginBottom: 2 }}>{opt.label}</div>
+                <div style={{ fontSize: 11, color: 'rgba(240,235,228,0.35)' }}>{opt.desc}</div>
+              </button>
+            ))}
+          </div>
         </div>
+
+        {form.billingType === 'TJM' && (
+          <div><label style={labelStyle}>TJM ({currSymbol}/jour)</label>
+            <input style={inputStyle} type="number" min="0" step="1" value={form.tjm} onChange={e => setForm(f => ({ ...f, tjm: e.target.value }))} placeholder="0" />
+          </div>
+        )}
+
+        {form.billingType === 'FORFAIT' && (
+          <div><label style={labelStyle}>Prix forfaitaire ({currSymbol})</label>
+            <input style={inputStyle} type="number" min="0" step="1" value={form.forfaitAmount} onChange={e => setForm(f => ({ ...f, forfaitAmount: e.target.value }))} placeholder="0" />
+          </div>
+        )}
 
         <div><label style={labelStyle}>Client *</label>
           <select style={{ ...inputStyle, cursor: 'pointer' }} value={form.clientId} onChange={e => setForm(f => ({ ...f, clientId: e.target.value }))} required>
