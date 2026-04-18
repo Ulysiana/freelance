@@ -7,14 +7,10 @@
 
 ## Bugs
 
-- [ ] **PDF viewer : télécharge au lieu d'afficher**  
-  Fichier : `app/api/admin/attachments/[attachmentId]/signed-url/route.ts`  
-  Fix : ajouter `ResponseContentDisposition: 'inline'` et `ResponseContentType: 'application/pdf'` dans le `GetObjectCommand` pour les PDFs.
+- [x] **PDF viewer : télécharge au lieu d'afficher**  
+  Fix : `getSignedViewUrl` avec `ResponseContentDisposition: inline` + `ResponseContentType: mimeType`.
 
-- [ ] **Breadcrumb projet vide** (ex : page Documents)  
-  Fichier : `app/bureau/projets/[id]/documents/page.tsx` (et autres sous-pages projet)  
-  `projectName` est `''` au premier rendu → le segment du fil d'Ariane est vide jusqu'au chargement.  
-  Fix : afficher l'`id` en fallback ou masquer le segment tant que le nom n'est pas chargé.
+- [x] **Breadcrumb projet vide** — fallback `'…'` déjà en place sur toutes les sous-pages.
 
 ---
 

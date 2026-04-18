@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { validateSession } from '@/lib/db/users'
 import { prisma } from '@/lib/db/prisma'
-import { getSignedDownloadUrl } from '@/lib/storage'
+import { getSignedDownloadUrl, getSignedViewUrl } from '@/lib/storage'
 
 export const dynamic = 'force-dynamic'
 const COOKIE = 'session_token'
@@ -15,6 +15,6 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ attach
   const { attachmentId } = await params
   const att = await prisma.attachment.findUnique({ where: { id: attachmentId } })
   if (!att) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
-  const url = await getSignedDownloadUrl(att.filename, att.originalName)
+  const url = await getSignedViewUrl(att.filename, att.mimeType)
   return NextResponse.json({ url })
 }

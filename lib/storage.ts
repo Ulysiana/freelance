@@ -33,3 +33,12 @@ export async function getSignedDownloadUrl(key: string, filename: string) {
     ResponseContentDisposition: `attachment; filename="${filename}"`,
   }), { expiresIn: 3600 })
 }
+
+export async function getSignedViewUrl(key: string, mimeType: string) {
+  return getSignedUrl(r2, new GetObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+    ResponseContentDisposition: 'inline',
+    ResponseContentType: mimeType,
+  }), { expiresIn: 3600 })
+}

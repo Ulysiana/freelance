@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { validateSession } from '@/lib/db/users'
 import { prisma } from '@/lib/db/prisma'
 import { randomBytes } from 'crypto'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
 export const dynamic = 'force-dynamic'
 const COOKIE = 'session_token'
@@ -14,6 +14,18 @@ async function requireAdmin() {
   const user = await validateSession(token)
   if (!user || user.role !== 'ADMIN') return null
   return user
+}
+
+function createTransport() {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'mail.difyzi.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  })
 }
 
 export async function GET() {
@@ -42,11 +54,11 @@ export async function POST(req: NextRequest) {
 
   const link = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/rejoindre/${token}`
 
-  if (sendEmail && email && process.env.RESEND_API_KEY) {
-    const resend = new Resend(process.env.RESEND_API_KEY)
+  if (sendEmail && email && process.env.SMTP_USER && process.env.SMTP_PASS) {
     const roleLabel: Record<string, string> = { CLIENT: 'client', ADMIN: 'administrateur', COLLABORATEUR: 'collaborateur' }
-    await resend.emails.send({
-      from: 'Creahub Solutions <noreply@creahub-solutions.fr>',
+    const transport = createTransport()
+    await transport.sendMail({
+      from: `Creahub Solutions <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
       to: email,
       subject: 'Votre invitation Creahub Solutions',
       html: `
