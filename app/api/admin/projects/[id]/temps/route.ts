@@ -17,7 +17,10 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   const { id } = await params
 
-  const project = await prisma.project.findUnique({ where: { id }, select: { tjm: true } })
+  const [project, settings] = await Promise.all([
+    prisma.project.findUnique({ where: { id }, select: { tjm: true } }),
+    prisma.appSettings.upsert({ where: { id: 'default' }, create: { id: 'default', hoursPerDay: 8 }, update: {} }),
+  ])
   if (!project) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
 
   const phases = await prisma.phase.findMany({
@@ -32,17 +35,18 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
     orderBy: { order: 'asc' },
   })
 
-  const costPerMinute = project.tjm / 480
+  const secondsPerDay = settings.hoursPerDay * 3600
+  const costPerSecond = project.tjm / secondsPerDay
   const tasks = phases.flatMap(phase =>
     phase.tasks.map(task => {
-      const totalMinutes = task.timeSessions.reduce((acc, s) => acc + (s.durationMinutes ?? 0), 0)
+      const totalSeconds = task.timeSessions.reduce((acc, s) => acc + (s.durationSeconds ?? 0), 0)
       return {
         id: task.id,
         title: task.title,
         status: task.status,
         phaseName: phase.name,
-        totalMinutes,
-        cost: totalMinutes * costPerMinute,
+        totalSeconds,
+        cost: totalSeconds * costPerSecond,
       }
     })
   )

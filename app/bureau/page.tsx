@@ -24,7 +24,7 @@ type DashboardData = {
     totalProjects: number
     totalClients: number
     pendingRequests: number
-    timeMinutesThisMonth: number
+    timeSecondsThisMonth: number
     revenueThisMonth: number
   }
   tasksByStatus: Record<string, number>
@@ -45,11 +45,13 @@ type DashboardData = {
   clientsWithProjects: ClientWithProjects[]
 }
 
-function formatMinutes(minutes: number) {
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  if (h === 0) return `${m}min`
-  return m === 0 ? `${h}h` : `${h}h${String(m).padStart(2, '0')}`
+function formatSeconds(seconds: number) {
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = seconds % 60
+  if (h === 0 && m === 0) return `${s}s`
+  if (h === 0) return `${m}m${String(s).padStart(2, '0')}s`
+  return `${h}h${String(m).padStart(2, '0')}m${String(s).padStart(2, '0')}s`
 }
 
 function timeAgo(dateStr: string) {
@@ -159,7 +161,7 @@ export default function AdminDashboard() {
   const statCards = [
     { label: 'Projets actifs',    value: stats.activeProjects,    sub: `${stats.totalProjects} au total`,   icon: FolderKanban, color: '#7dd3fc' },
     { label: 'Clients',           value: stats.totalClients,      sub: 'comptes clients',                   icon: Users,        color: '#86efac' },
-    { label: 'Temps ce mois',     value: formatMinutes(stats.timeMinutesThisMonth), sub: 'heures pointées', icon: Clock,        color: '#e8946a' },
+    { label: 'Temps ce mois',     value: formatSeconds(stats.timeSecondsThisMonth), sub: 'temps pointé',   icon: Clock,        color: '#e8946a' },
     { label: 'CA estimé ce mois', value: `${stats.revenueThisMonth} €`, sub: 'basé sur TJM',               icon: TrendingUp,   color: '#c084fc' },
   ]
 

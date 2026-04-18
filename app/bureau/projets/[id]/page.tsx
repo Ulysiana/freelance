@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Kanban, Clock, MessageCirclePlus, FileText, Globe, MessageSquare } from 'lucide-react'
+import { Kanban, Clock, MessageCirclePlus, FileText, Globe, MessageSquare, ChevronRight } from 'lucide-react'
 
 type Project = {
   id: string; name: string; description: string | null; status: string; tjm: number; createdAt: string
@@ -55,8 +55,12 @@ export default function ProjetDetailPage() {
 
   return (
     <div style={{ maxWidth: 720 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: 13, color: 'rgba(240,235,228,0.4)' }}>
+        <Link href="/bureau/projets" style={{ color: 'inherit', textDecoration: 'none' }}>Projets</Link>
+        <ChevronRight size={14} strokeWidth={1.5} />
+        <span style={{ color: '#f0ebe4' }}>{project.name}</span>
+      </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
-        <button onClick={() => router.push('/bureau/projets')} style={{ background: 'none', border: 'none', color: 'rgba(240,235,228,0.4)', cursor: 'pointer', fontSize: 20, padding: 0 }}>←</button>
         {editing ? (
           <input style={{ ...inputStyle, fontSize: 22, fontWeight: 700, flex: 1 }} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
         ) : (

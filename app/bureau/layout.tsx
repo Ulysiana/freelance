@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { LayoutDashboard, FolderKanban, Users, LogOut, ShieldCheck, UserPlus } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Users, LogOut, ShieldCheck, UserPlus, Settings } from 'lucide-react'
 
 type User = { id: string; name: string | null; email: string; role: string }
 
@@ -12,6 +12,7 @@ const navItems = [
   { href: '/bureau/users', label: 'Utilisateurs', icon: Users },
   { href: '/bureau/invitations', label: 'Invitations', icon: UserPlus },
   { href: '/bureau/securite', label: 'Sécurité', icon: ShieldCheck },
+  { href: '/bureau/parametres', label: 'Paramètres', icon: Settings },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

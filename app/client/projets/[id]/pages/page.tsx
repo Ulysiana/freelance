@@ -13,7 +13,10 @@ export default function PagesClientPage() {
   const [projectName, setProjectName] = useState('')
 
   useEffect(() => {
-    fetch(`/api/admin/projects/${id}`).then(r => r.json()).then(d => setProjectName(d.project?.name || ''))
+    fetch('/api/client/projects').then(r => r.json()).then(d => {
+      const project = (d.projects || []).find((p: { id: string; name: string }) => p.id === id)
+      setProjectName(project?.name || '')
+    })
   }, [id])
 
   return (
@@ -21,7 +24,7 @@ export default function PagesClientPage() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>
         <Link href="/client/projets" style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>Projets</Link>
         <ChevronRight size={12} strokeWidth={1.5} />
-        <Link href={`/client/projets/${id}`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{projectName}</Link>
+        <Link href={`/client/projets/${id}`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{projectName || '…'}</Link>
         <ChevronRight size={12} strokeWidth={1.5} />
         <span style={{ color: 'rgba(240,235,228,0.6)' }}>Pages HTML</span>
       </div>

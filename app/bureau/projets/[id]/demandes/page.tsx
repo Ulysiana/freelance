@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { ChevronRight } from 'lucide-react'
 
 type Request = {
   id: string
@@ -74,12 +76,15 @@ export default function DemandesPage() {
 
   return (
     <div style={{ maxWidth: 720 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-        <button onClick={() => router.push(`/bureau/projets/${id}`)} style={{ background: 'none', border: 'none', color: 'rgba(240,235,228,0.4)', cursor: 'pointer', fontSize: 20, padding: 0 }}>←</button>
-        <div>
-          <h1 style={{ fontSize: 18, fontWeight: 700, color: '#f0ebe4', margin: 0 }}>Demandes</h1>
-          <span style={{ fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>{projectName}</span>
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, fontSize: 13, color: 'rgba(240,235,228,0.4)' }}>
+        <Link href="/bureau/projets" style={{ color: 'inherit', textDecoration: 'none' }}>Projets</Link>
+        <ChevronRight size={14} strokeWidth={1.5} />
+        <Link href={`/bureau/projets/${id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{projectName || '…'}</Link>
+        <ChevronRight size={14} strokeWidth={1.5} />
+        <span style={{ color: '#f0ebe4' }}>Demandes</span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, flex: 1 }}>Demandes</h1>
         <button onClick={() => setShowForm(v => !v)} style={{ marginLeft: 'auto', padding: '8px 16px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 12 }}>
           + Nouvelle demande
         </button>

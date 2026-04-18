@@ -15,6 +15,13 @@ export async function GET() {
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
+  const settings = await prisma.appSettings.upsert({
+    where: { id: 'default' },
+    create: { id: 'default', hoursPerDay: 8 },
+    update: {},
+  })
+  const secondsPerDay = settings.hoursPerDay * 3600
+
   const [
     activeProjects,
     totalProjects,
@@ -31,8 +38,8 @@ export async function GET() {
     prisma.user.count({ where: { role: 'CLIENT' } }),
     prisma.projectRequest.count({ where: { status: 'PENDING' } }),
     prisma.timeSession.aggregate({
-      _sum: { durationMinutes: true },
-      where: { startedAt: { gte: startOfMonth }, durationMinutes: { not: null } },
+      _sum: { durationSeconds: true },
+      where: { startedAt: { gte: startOfMonth }, durationSeconds: { not: null } },
     }),
     prisma.message.findMany({
       take: 5,
@@ -71,14 +78,13 @@ export async function GET() {
     }),
   ])
 
-  // Revenue estimate: sum of (durationMinutes / 480) * tjm for each time session this month
   const revenueData = await prisma.timeSession.findMany({
-    where: { startedAt: { gte: startOfMonth }, durationMinutes: { not: null } },
+    where: { startedAt: { gte: startOfMonth }, durationSeconds: { not: null } },
     include: { task: { include: { phase: { include: { project: { select: { tjm: true } } } } } } },
   })
   const revenueThisMonth = revenueData.reduce((sum, s) => {
     const tjm = s.task.phase.project.tjm
-    return sum + ((s.durationMinutes || 0) / 480) * tjm
+    return sum + ((s.durationSeconds || 0) / secondsPerDay) * tjm
   }, 0)
 
   return NextResponse.json({
@@ -87,7 +93,7 @@ export async function GET() {
       totalProjects,
       totalClients,
       pendingRequests,
-      timeMinutesThisMonth: timeThisMonth._sum.durationMinutes || 0,
+      timeSecondsThisMonth: timeThisMonth._sum.durationSeconds || 0,
       revenueThisMonth: Math.round(revenueThisMonth),
     },
     tasksByStatus: Object.fromEntries(tasksByStatus.map(t => [t.status, t._count.id])),

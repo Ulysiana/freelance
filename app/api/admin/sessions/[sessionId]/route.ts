@@ -19,10 +19,10 @@ export async function PATCH(_: NextRequest, { params }: { params: Promise<{ sess
   const existing = await prisma.timeSession.findUnique({ where: { id: sessionId } })
   if (!existing) return NextResponse.json({ error: 'Session introuvable' }, { status: 404 })
   const endedAt = new Date()
-  const durationMinutes = Math.round((endedAt.getTime() - existing.startedAt.getTime()) / 60000)
+  const durationSeconds = Math.round((endedAt.getTime() - existing.startedAt.getTime()) / 1000)
   const session = await prisma.timeSession.update({
     where: { id: sessionId },
-    data: { endedAt, durationMinutes },
+    data: { endedAt, durationSeconds },
   })
   return NextResponse.json({ session })
 }

@@ -21,7 +21,7 @@ export default function PagesAdminPage() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>
         <Link href="/bureau/projets" style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>Projets</Link>
         <ChevronRight size={12} strokeWidth={1.5} />
-        <Link href={`/bureau/projets/${id}`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{projectName}</Link>
+        <Link href={`/bureau/projets/${id}`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{projectName || '…'}</Link>
         <ChevronRight size={12} strokeWidth={1.5} />
         <span style={{ color: 'rgba(240,235,228,0.6)' }}>Pages HTML</span>
       </div>

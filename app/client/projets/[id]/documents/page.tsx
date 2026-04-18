@@ -20,10 +20,11 @@ export default function ClientDocumentsPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/admin/projects/${id}`).then(r => r.json()),
+      fetch('/api/client/projects').then(r => r.json()),
       fetch(`/api/admin/projects/${id}/documents`).then(r => r.json()),
-    ]).then(([proj, docsData]) => {
-      setProjectName(proj.project?.name || '')
+    ]).then(([projectsData, docsData]) => {
+      const project = (projectsData.projects || []).find((p: { id: string; name: string }) => p.id === id)
+      setProjectName(project?.name || '')
       setDocs(docsData.documents || [])
     })
   }, [id])
@@ -50,7 +51,7 @@ export default function ClientDocumentsPage() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>
         <Link href="/client/projets" style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>Projets</Link>
         <ChevronRight size={12} strokeWidth={1.5} />
-        <Link href={`/client/projets/${id}`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{projectName}</Link>
+        <Link href={`/client/projets/${id}`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{projectName || '…'}</Link>
         <ChevronRight size={12} strokeWidth={1.5} />
         <span style={{ color: 'rgba(240,235,228,0.6)' }}>Documents</span>
       </div>

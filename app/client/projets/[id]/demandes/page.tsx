@@ -30,13 +30,14 @@ export default function ClientDemandesPage() {
   const [sending, setSending] = useState(false)
 
   async function load() {
-    const [projRes, reqRes] = await Promise.all([
-      fetch(`/api/admin/projects/${id}`),
+    const [projectsRes, reqRes] = await Promise.all([
+      fetch('/api/client/projects'),
       fetch(`/api/admin/projects/${id}/requests`),
     ])
-    const projData = await projRes.json()
+    const projectsData = await projectsRes.json()
     const reqData = await reqRes.json()
-    setProjectName(projData.project?.name || '')
+    const project = (projectsData.projects || []).find((p: { id: string; name: string }) => p.id === id)
+    setProjectName(project?.name || '')
     setRequests(reqData.requests || [])
   }
 
