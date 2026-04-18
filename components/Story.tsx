@@ -133,50 +133,62 @@ export default function Story() {
         {/* Right: stack */}
         <div>
           <FadeIn delay={0.1} direction="left">
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: 24, position: "relative" }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 24, position: "relative", height: 310 }}>
 
-              {/* Glow amber derrière */}
+              {/* Glow ambient */}
               <div style={{
                 position: "absolute",
-                width: 260,
-                height: 320,
-                background: "radial-gradient(ellipse, rgba(232,148,106,0.2) 0%, transparent 70%)",
-                filter: "blur(30px)",
+                width: 280,
+                height: 340,
+                background: "radial-gradient(ellipse, rgba(232,148,106,0.15) 0%, transparent 70%)",
+                filter: "blur(40px)",
                 pointerEvents: "none",
-                top: "50%",
-                left: "50%",
+                top: "50%", left: "50%",
                 transform: "translate(-50%, -50%)",
               }} />
 
-              {/* Cadre décalé derrière */}
+              {/* Cadre amber décalé derrière */}
               <div style={{
                 position: "absolute",
-                width: 210,
-                height: 270,
-                top: 12,
-                left: "calc(50% + 12px)",
-                transform: "translateX(-50%)",
-                borderRadius: "60% 40% 55% 45% / 45% 55% 45% 55%",
-                border: "1px solid rgba(232,148,106,0.2)",
-                background: "rgba(232,148,106,0.04)",
+                width: 200,
+                height: 265,
+                top: 18,
+                left: "calc(50% + 14px)",
+                transform: "translateX(-50%) rotate(2deg)",
+                borderRadius: 16,
+                border: "1.5px solid rgba(232,148,106,0.35)",
+                background: "transparent",
               }} />
 
-              {/* Photo blob */}
-              <div style={{ position: "relative" }}>
+              {/* Carte photo inclinée */}
+              <div style={{
+                position: "relative",
+                transform: "rotate(-2.5deg)",
+                borderRadius: 14,
+                overflow: "hidden",
+                boxShadow: "0 24px 60px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.4)",
+                width: 200,
+                height: 265,
+                flexShrink: 0,
+              }}>
                 <img
                   src="https://pub-8f5fcb136dea4b40a0ab2b4891e0d4ac.r2.dev/site/photo.png"
                   alt="Corinne – Creahub Solutions"
                   style={{
-                    width: 210,
-                    height: 270,
+                    width: "100%",
+                    height: "100%",
                     objectFit: "cover",
                     objectPosition: "center top",
-                    clipPath: "path('M105,0 C155,0 210,35 210,95 C210,145 190,175 175,210 C160,245 155,270 105,270 C55,270 48,245 35,210 C20,175 0,145 0,95 C0,35 55,0 105,0 Z')",
-                    boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
                     display: "block",
                   }}
                 />
-
+                {/* Dégradé bas subtil */}
+                <div style={{
+                  position: "absolute",
+                  bottom: 0, left: 0, right: 0,
+                  height: 80,
+                  background: "linear-gradient(to top, rgba(10,8,6,0.5), transparent)",
+                }} />
               </div>
             </div>
           </FadeIn>

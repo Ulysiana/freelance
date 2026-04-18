@@ -18,8 +18,14 @@ export async function GET() {
   const user = await validateSession(token)
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
-  const secret = generateSecret()
-  await prisma.user.update({ where: { id: user.id }, data: { totpSecret: secret, totpEnabled: false } })
+  const dbUser = await prisma.user.findUnique({ where: { id: user.id } })
+
+  // Réutiliser le secret existant s'il y en a déjà un (évite de changer le QR à chaque render)
+  let secret = dbUser?.totpSecret && !dbUser.totpEnabled ? dbUser.totpSecret : null
+  if (!secret) {
+    secret = generateSecret()
+    await prisma.user.update({ where: { id: user.id }, data: { totpSecret: secret, totpEnabled: false } })
+  }
 
   const uri = otpAuthUri(user.email, secret)
   const qrDataUrl = await toDataURL(uri)
