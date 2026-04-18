@@ -20,6 +20,22 @@ export const metadata: Metadata = {
     "migration base de données",
     "100% remote",
   ],
+  openGraph: {
+    title: "Creahub Solutions – Développeuse Freelance",
+    description: "Python, React, WordPress, Cloud Run · 100 % remote · 590 €/j",
+    url: "https://creahub-solutions.fr",
+    siteName: "Creahub Solutions",
+    images: [{ url: "/images/OG_creahub-solutions.png", width: 1200, height: 630, alt: "Creahub Solutions" }],
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Creahub Solutions – Développeuse Freelance",
+    description: "Python, React, WordPress, Cloud Run · 100 % remote · 590 €/j",
+    images: ["/images/OG_creahub-solutions.png"],
+  },
+  icons: { icon: "/favicon.ico" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

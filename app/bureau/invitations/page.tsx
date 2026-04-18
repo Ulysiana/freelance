@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ChevronRight, Copy, Check, Plus, Mail, Clock, UserCheck, AlertCircle } from 'lucide-react'
+import { useIsMobile } from '@/lib/useIsMobile'
 
 type Invitation = {
   id: string
@@ -40,6 +41,7 @@ export default function InvitationsPage() {
   const [newLink, setNewLink] = useState('')
   const [creating, setCreating] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const isMobile = useIsMobile()
 
   async function load() {
     const res = await fetch('/api/admin/invitations')
@@ -79,8 +81,8 @@ export default function InvitationsPage() {
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, flex: 1 }}>Invitations</h1>
         <button onClick={() => { setShowForm(s => !s); setNewLink('') }}
-          style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '9px 16px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-          <Plus size={14} strokeWidth={2} /> Nouvelle invitation
+          style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 0 : 7, padding: isMobile ? '9px' : '9px 16px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+          <Plus size={16} strokeWidth={2} />{!isMobile && ' Nouvelle invitation'}
         </button>
       </div>
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Plus, User, Euro, ChevronRight, Circle, Zap, Archive } from 'lucide-react'
+import { useIsMobile } from '@/lib/useIsMobile'
 
 type Project = {
   id: string; name: string; description: string | null; status: string; tjm: number
@@ -18,6 +19,7 @@ export default function ProjetsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [showArchived, setShowArchived] = useState(false)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     fetch('/api/admin/projects').then(r => r.json()).then(d => { setProjects(d.projects || []); setLoading(false) })
@@ -30,8 +32,8 @@ export default function ProjetsPage() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700 }}>Projets</h1>
-        <Link href="/bureau/projets/nouveau" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 20px', borderRadius: 999, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
-          <Plus size={14} strokeWidth={2.5} /> Nouveau projet
+        <Link href="/bureau/projets/nouveau" style={{ display: 'inline-flex', alignItems: 'center', gap: isMobile ? 0 : 7, padding: isMobile ? '9px' : '9px 20px', borderRadius: isMobile ? 8 : 999, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
+          <Plus size={16} strokeWidth={2.5} />{!isMobile && ' Nouveau projet'}
         </Link>
       </div>
 

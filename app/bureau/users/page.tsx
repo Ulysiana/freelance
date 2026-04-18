@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { Plus } from 'lucide-react'
+import { useIsMobile } from '@/lib/useIsMobile'
 
 type User = { id: string; name: string | null; pseudo: string | null; email: string; role: string; createdAt: string; projectCount: number }
 type ModalState = { mode: 'create' } | { mode: 'edit'; user: User } | null
@@ -111,13 +113,14 @@ export default function UsersPage() {
   }
 
   const roleColor = (role: string) => role === 'ADMIN' ? '#e8946a' : role === 'COLLABORATEUR' ? '#7dd3fc' : 'rgba(240,235,228,0.5)'
+  const isMobile = useIsMobile()
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700 }}>Utilisateurs</h1>
-        <button onClick={() => setModal({ mode: 'create' })} style={{ padding: '9px 20px', borderRadius: 999, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
-          + Nouvel utilisateur
+        <button onClick={() => setModal({ mode: 'create' })} style={{ display: 'inline-flex', alignItems: 'center', gap: isMobile ? 0 : 6, padding: isMobile ? '9px' : '9px 20px', borderRadius: isMobile ? 8 : 999, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
+          <Plus size={16} strokeWidth={2.5} />{!isMobile && ' Nouvel utilisateur'}
         </button>
       </div>
 

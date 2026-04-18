@@ -21,10 +21,18 @@ export default function MessageThread({ projectId, currentUserId, currentUserRol
   const bottomRef = useRef<HTMLDivElement>(null)
   const isAdmin = currentUserRole === 'ADMIN'
 
+  const markSeen = (msgs: Message[]) => {
+    const stored = JSON.parse(localStorage.getItem('seen_messages') || '[]') as string[]
+    const updated = Array.from(new Set([...stored, ...msgs.map(m => m.id)]))
+    localStorage.setItem('seen_messages', JSON.stringify(updated))
+  }
+
   const load = useCallback(async () => {
     const res = await fetch(`/api/admin/projects/${projectId}/messages`)
     const data = await res.json()
-    setMessages(data.messages || [])
+    const msgs: Message[] = data.messages || []
+    setMessages(msgs)
+    markSeen(msgs)
   }, [projectId])
 
   useEffect(() => { load() }, [load])

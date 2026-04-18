@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Kanban, Clock, MessageCirclePlus, FileText, Globe, MessageSquare, ChevronRight } from 'lucide-react'
+import { useIsMobile } from '@/lib/useIsMobile'
 
 type Project = {
   id: string; name: string; description: string | null; status: string
@@ -26,6 +27,7 @@ export default function ProjetDetailPage() {
   const [saving, setSaving] = useState(false)
   const [totalSeconds, setTotalSeconds] = useState(0)
   const [totalCost, setTotalCost] = useState(0)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     Promise.all([
@@ -195,7 +197,7 @@ export default function ProjetDetailPage() {
         </div>
       )}
 
-      <div style={{ marginBottom: 16, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+      <div style={{ marginBottom: 16, display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8 }}>
         {[
           { href: `/bureau/projets/${id}/taches`,    label: 'Phases & Tâches', icon: Kanban },
           ...(!isForfait ? [{ href: `/bureau/projets/${id}/temps`, label: 'Suivi du temps', icon: Clock }] : []),
@@ -204,8 +206,8 @@ export default function ProjetDetailPage() {
           { href: `/bureau/projets/${id}/pages`,     label: 'Pages HTML',      icon: Globe },
           { href: `/bureau/projets/${id}/messages`,  label: 'Messages',        icon: MessageSquare },
         ].map(({ href, label, icon: Icon }) => (
-          <Link key={href} href={href} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,235,228,0.7)', textDecoration: 'none', fontSize: 13, transition: 'border-color 0.15s' }}>
-            <Icon size={14} strokeWidth={1.8} />
+          <Link key={href} href={href} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: isMobile ? '10px 12px' : '10px 18px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,235,228,0.7)', textDecoration: 'none', fontSize: isMobile ? 12 : 13 }}>
+            <Icon size={13} strokeWidth={1.8} />
             {label}
           </Link>
         ))}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FolderKanban, Users, Clock, MessageSquare, AlertCircle, TrendingUp, CheckCircle2, CircleDot, Circle, CheckSquare, ChevronDown, ChevronRight } from 'lucide-react'
+import { useIsMobile } from '@/lib/useIsMobile'
 
 type ClientWithProjects = {
   id: string
@@ -143,8 +144,12 @@ function ClientCard({ client }: { client: ClientWithProjects }) {
 export default function AdminDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [view, setView] = useState<'overview' | 'clients'>('overview')
+  const [seenIds, setSeenIds] = useState<Set<string>>(new Set())
+  const isMobile = useIsMobile()
 
   useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem('seen_messages') || '[]') as string[]
+    setSeenIds(new Set(stored))
     fetch('/api/admin/dashboard').then(r => r.json()).then(setData)
   }, [])
 
@@ -155,7 +160,8 @@ export default function AdminDashboard() {
     </div>
   )
 
-  const { stats, tasksByStatus, recentMessages, recentRequests, clientsWithProjects } = data
+  const { stats, tasksByStatus, recentRequests, clientsWithProjects } = data
+  const recentMessages = data.recentMessages.filter(m => !seenIds.has(m.id))
   const totalTasks = Object.values(tasksByStatus).reduce((a, b) => a + b, 0)
 
   const statCards = [
@@ -167,7 +173,7 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ maxWidth: 860 }}>
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 32 }}>
+      <div style={{ display: 'flex', alignItems: isMobile ? 'flex-start' : 'flex-end', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 12 : 0, justifyContent: 'space-between', marginBottom: 32 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 4 }}>Tableau de bord</h1>
           <p style={{ color: 'rgba(240,235,228,0.4)', fontSize: 13 }}>
@@ -185,7 +191,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stat cards — always visible */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: 12, marginBottom: 28 }}>
         {statCards.map(({ label, value, sub, icon: Icon, color }) => (
           <div key={label} style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '18px 20px', background: 'rgba(255,255,255,0.02)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
@@ -200,7 +206,7 @@ export default function AdminDashboard() {
 
       {view === 'overview' && (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, marginBottom: 16 }}>
             {/* Tasks by status */}
             <div style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '20px 24px' }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>Tâches</div>
