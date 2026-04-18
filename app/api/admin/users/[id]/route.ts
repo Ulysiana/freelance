@@ -41,6 +41,11 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
   if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
   const { id } = await params
   if (id === admin.id) return NextResponse.json({ error: 'Impossible de se supprimer soi-même' }, { status: 400 })
+  const target = await prisma.user.findUnique({ where: { id }, select: { role: true } })
+  if (target?.role === 'CLIENT') {
+    const count = await prisma.project.count({ where: { clientId: id } })
+    if (count > 0) return NextResponse.json({ error: `Ce client a ${count} projet${count > 1 ? 's' : ''} — impossible de le supprimer.` }, { status: 400 })
+  }
   await deleteUser(id)
   return NextResponse.json({ ok: true })
 }

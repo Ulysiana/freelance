@@ -55,7 +55,28 @@ export async function updateUser(id: string, data: { name?: string; pseudo?: str
 }
 
 export async function deleteUser(id: string): Promise<void> {
-  await prisma.user.delete({ where: { id } })
+  await prisma.$transaction(async (tx) => {
+    // Supprime les enregistrements qui référencent l'utilisateur sans cascade
+    await tx.timeSession.deleteMany({ where: { userId: id } })
+    await tx.taskComment.deleteMany({ where: { authorId: id } })
+    await tx.attachment.deleteMany({ where: { uploadedByUserId: id } })
+    await tx.message.deleteMany({ where: { authorId: id } })
+    await tx.htmlPage.deleteMany({ where: { uploadedByUserId: id } })
+    await tx.document.deleteMany({ where: { authorId: id } })
+    await tx.projectFile.deleteMany({ where: { uploadedById: id } })
+    await tx.projectRequest.deleteMany({ where: { authorId: id } })
+    await tx.projectCollaborator.deleteMany({ where: { collaboratorId: id } })
+    await tx.invitation.deleteMany({ where: { createdBy: id } })
+    await tx.session.deleteMany({ where: { userId: id } })
+
+    // Supprime les projets dont l'utilisateur est client
+    // (cascade Prisma gère Phase→Task→TimeSessions/Comments/Attachments/Todos
+    //  + Documents, Messages, HtmlPages, ProjectFiles, ProjectRequests)
+    await tx.project.deleteMany({ where: { clientId: id } })
+
+    // Supprime l'utilisateur (cascade Prisma gère Invoice et ClientFile via clientId)
+    await tx.user.delete({ where: { id } })
+  })
 }
 
 // ==================== SESSIONS ====================

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-type User = { id: string; name: string | null; pseudo: string | null; email: string; role: string; createdAt: string }
+type User = { id: string; name: string | null; pseudo: string | null; email: string; role: string; createdAt: string; projectCount: number }
 type ModalState = { mode: 'create' } | { mode: 'edit'; user: User } | null
 
 const ROLES = ['ADMIN', 'COLLABORATEUR', 'CLIENT']
@@ -100,8 +100,13 @@ export default function UsersPage() {
   async function handleDelete(id: string) {
     if (!confirm('Supprimer cet utilisateur ?')) return
     setDeleting(id)
-    await fetch(`/api/admin/users/${id}`, { method: 'DELETE' })
-    load()
+    const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' })
+    if (!res.ok) {
+      const data = await res.json()
+      alert(data.error || 'Erreur lors de la suppression')
+    } else {
+      load()
+    }
     setDeleting(null)
   }
 
@@ -146,9 +151,16 @@ export default function UsersPage() {
                         <Link href={`/bureau/clients/${u.id}`} style={{ padding: '5px 12px', borderRadius: 6, background: 'none', border: '1px solid rgba(232,148,106,0.25)', color: '#e8946a', fontSize: 12, textDecoration: 'none' }}>Fiche</Link>
                       )}
                       <button onClick={() => setModal({ mode: 'edit', user: u })} style={{ padding: '5px 12px', borderRadius: 6, background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,235,228,0.6)', cursor: 'pointer', fontSize: 12 }}>Modifier</button>
-                      <button onClick={() => handleDelete(u.id)} disabled={deleting === u.id} style={{ padding: '5px 12px', borderRadius: 6, background: 'none', border: '1px solid rgba(220,50,50,0.25)', color: 'rgba(248,113,113,0.7)', cursor: 'pointer', fontSize: 12, opacity: deleting === u.id ? 0.5 : 1 }}>
-                        {deleting === u.id ? '...' : 'Supprimer'}
-                      </button>
+                      {u.role === 'CLIENT' && u.projectCount > 0 ? (
+                        <span title={`${u.projectCount} projet${u.projectCount > 1 ? 's' : ''} lié${u.projectCount > 1 ? 's' : ''} — suppression impossible`}
+                          style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.05)', color: 'rgba(240,235,228,0.2)', fontSize: 12, cursor: 'not-allowed', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                          Supprimer · {u.projectCount}
+                        </span>
+                      ) : (
+                        <button onClick={() => handleDelete(u.id)} disabled={deleting === u.id} style={{ padding: '5px 12px', borderRadius: 6, background: 'none', border: '1px solid rgba(220,50,50,0.25)', color: 'rgba(248,113,113,0.7)', cursor: 'pointer', fontSize: 12, opacity: deleting === u.id ? 0.5 : 1 }}>
+                          {deleting === u.id ? '...' : 'Supprimer'}
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

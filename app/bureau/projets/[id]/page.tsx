@@ -24,12 +24,15 @@ export default function ProjetDetailPage() {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ name: '', description: '', billingType: 'TJM', tjm: '', forfaitAmount: '', status: '' })
   const [saving, setSaving] = useState(false)
+  const [totalSeconds, setTotalSeconds] = useState(0)
+  const [totalCost, setTotalCost] = useState(0)
 
   useEffect(() => {
     Promise.all([
       fetch(`/api/admin/projects/${id}`).then(r => r.json()),
       fetch('/api/admin/settings').then(r => r.json()),
-    ]).then(([d, s]) => {
+      fetch(`/api/admin/projects/${id}/temps`).then(r => r.json()),
+    ]).then(([d, s, t]) => {
       setProject(d.project)
       setForm({
         name: d.project.name,
@@ -40,6 +43,9 @@ export default function ProjetDetailPage() {
         status: d.project.status,
       })
       setCurrency(s.currency || 'EUR')
+      const tasks: { totalSeconds: number; cost: number }[] = t.tasks || []
+      setTotalSeconds(tasks.reduce((a, x) => a + x.totalSeconds, 0))
+      setTotalCost(tasks.reduce((a, x) => a + x.cost, 0))
       setLoading(false)
     })
   }, [id])
@@ -66,6 +72,13 @@ export default function ProjetDetailPage() {
 
   const inputStyle: React.CSSProperties = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', color: '#f0ebe4', fontSize: 14, outline: 'none', width: '100%', boxSizing: 'border-box' }
   const currSymbol = { EUR: '€', USD: '$', GBP: '£' }[currency] ?? '€'
+
+  function fmtSeconds(s: number) {
+    const h = Math.floor(s / 3600)
+    const m = Math.floor((s % 3600) / 60)
+    if (h === 0) return `${m} min`
+    return m > 0 ? `${h}h ${m}min` : `${h}h`
+  }
 
   if (loading) return <p style={{ color: 'rgba(240,235,228,0.4)', fontSize: 14 }}>Chargement...</p>
   if (!project) return <p style={{ color: '#f87171' }}>Projet introuvable.</p>
@@ -132,9 +145,21 @@ export default function ProjetDetailPage() {
                   <span style={{ fontSize: 13, fontWeight: 400, color: 'rgba(240,235,228,0.4)', marginLeft: 4 }}>forfait</span>
                 </div>
               ) : (
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#e8946a' }}>
-                  {project.tjm} {currSymbol}<span style={{ fontSize: 13, fontWeight: 400, color: 'rgba(240,235,228,0.4)' }}>/jour</span>
-                </div>
+                <>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: '#e8946a' }}>
+                    {project.tjm} {currSymbol}<span style={{ fontSize: 13, fontWeight: 400, color: 'rgba(240,235,228,0.4)' }}>/jour</span>
+                  </div>
+                  {totalSeconds > 0 && (
+                    <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div style={{ fontSize: 12, color: 'rgba(240,235,228,0.4)' }}>
+                        <span style={{ color: 'rgba(240,235,228,0.7)', fontWeight: 600 }}>{fmtSeconds(totalSeconds)}</span> passés
+                      </div>
+                      <div style={{ fontSize: 12, color: 'rgba(240,235,228,0.4)' }}>
+                        <span style={{ color: '#86efac', fontWeight: 600 }}>{totalCost.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {currSymbol}</span> cumulés
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}

@@ -85,19 +85,6 @@ export default function DocumentEditPage() {
         <span style={{ color: 'rgba(240,235,228,0.6)' }}>{title}</span>
       </div>
 
-      {/* Boutons flottants */}
-      <div style={{ position: 'fixed', top: 24, right: 32, display: 'flex', gap: 8, zIndex: 50 }}>
-        <button onClick={handleExportPDF} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: 'rgba(240,235,228,0.7)', cursor: 'pointer', fontSize: 13 }}>
-          <Download size={13} strokeWidth={1.8} /> PDF
-        </button>
-        <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 18px', borderRadius: 8, border: 'none', background: saved ? 'rgba(134,239,172,0.15)' : 'linear-gradient(135deg, #e8946a, #c27b5b)', color: saved ? '#86efac' : '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
-          <Save size={13} strokeWidth={2} />{saved ? 'Enregistré' : saving ? '...' : 'Enregistrer'}
-        </button>
-        <button onClick={handleDelete} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 8, background: 'none', border: '1px solid rgba(220,50,50,0.25)', color: 'rgba(248,113,113,0.7)', cursor: 'pointer', fontSize: 13 }}>
-          <Trash2 size={13} strokeWidth={1.8} />
-        </button>
-      </div>
-
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
         <FileText size={18} strokeWidth={1.8} style={{ color: '#e8946a' }} />
         <input value={title} onChange={e => setTitle(e.target.value)}
@@ -105,6 +92,19 @@ export default function DocumentEditPage() {
       </div>
 
       <RichEditor value={content} onChange={setContent} />
+
+      <div style={{ display: 'flex', gap: 8, marginTop: 24 }}>
+        <button onClick={handleExportPDF} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '10px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: 'rgba(240,235,228,0.7)', cursor: 'pointer', fontSize: 13 }}>
+          <Download size={13} strokeWidth={1.8} /> PDF
+        </button>
+        <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '10px 18px', borderRadius: 8, border: 'none', background: saved ? 'rgba(134,239,172,0.15)' : 'linear-gradient(135deg, #e8946a, #c27b5b)', color: saved ? '#86efac' : '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
+          <Save size={13} strokeWidth={2} />{saved ? 'Enregistré' : saving ? '...' : 'Enregistrer'}
+        </button>
+        <button onClick={handleDelete} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '10px 14px', borderRadius: 8, background: 'none', border: '1px solid rgba(220,50,50,0.25)', color: 'rgba(248,113,113,0.7)', cursor: 'pointer', fontSize: 13, marginLeft: 'auto' }}>
+          <Trash2 size={13} strokeWidth={1.8} />
+          Supprimer
+        </button>
+      </div>
 
       {/* Zone cachée pour l'export PDF */}
       <div ref={printRef} style={{ position: 'absolute', left: '-9999px', top: 0, width: 700, padding: 40, background: '#fff', color: '#000', fontFamily: 'sans-serif' }}>

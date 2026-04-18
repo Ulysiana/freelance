@@ -17,24 +17,36 @@ const statusIcon: Record<string, React.ElementType> = { DRAFT: Circle, ACTIVE: Z
 export default function ProjetsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
+  const [showArchived, setShowArchived] = useState(false)
 
   useEffect(() => {
     fetch('/api/admin/projects').then(r => r.json()).then(d => { setProjects(d.projects || []); setLoading(false) })
   }, [])
 
+  const filtered = showArchived ? projects : projects.filter(p => p.status !== 'ARCHIVED')
+  const archivedCount = projects.filter(p => p.status === 'ARCHIVED').length
+
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700 }}>Projets</h1>
         <Link href="/bureau/projets/nouveau" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 20px', borderRadius: 999, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
           <Plus size={14} strokeWidth={2.5} /> Nouveau projet
         </Link>
       </div>
 
+      {!loading && archivedCount > 0 && (
+        <button onClick={() => setShowArchived(v => !v)}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 20, padding: '6px 14px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.08)', background: showArchived ? 'rgba(255,255,255,0.06)' : 'none', color: showArchived ? 'rgba(240,235,228,0.7)' : 'rgba(240,235,228,0.35)', cursor: 'pointer', fontSize: 12 }}>
+          <Archive size={12} strokeWidth={1.8} />
+          {showArchived ? 'Masquer les archivés' : `Voir les archivés (${archivedCount})`}
+        </button>
+      )}
+
       {loading ? <p style={{ color: 'rgba(240,235,228,0.4)', fontSize: 14 }}>Chargement...</p> : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {projects.length === 0 && <p style={{ color: 'rgba(240,235,228,0.4)', fontSize: 14 }}>Aucun projet pour l'instant.</p>}
-          {projects.map(p => (
+          {filtered.length === 0 && <p style={{ color: 'rgba(240,235,228,0.4)', fontSize: 14 }}>Aucun projet pour l'instant.</p>}
+          {filtered.map(p => (
             <Link key={p.id} href={`/bureau/projets/${p.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'border-color 0.2s', cursor: 'pointer' }}
                 onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(232,148,106,0.3)')}

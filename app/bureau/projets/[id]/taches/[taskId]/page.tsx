@@ -72,18 +72,7 @@ export default function TaskDetailPage() {
   if (!task) return <p style={{ color: 'rgba(240,235,228,0.4)', fontSize: 14 }}>Chargement...</p>
 
   return (
-    <div style={{ maxWidth: 720, position: 'relative' }}>
-      {/* Boutons flottants haut droite */}
-      <div style={{ position: 'fixed', top: 24, right: 32, display: 'flex', gap: 8, zIndex: 50 }}>
-        <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 18px', borderRadius: 8, border: 'none', background: saved ? 'rgba(134,239,172,0.15)' : 'linear-gradient(135deg, #e8946a, #c27b5b)', color: saved ? '#86efac' : '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13, transition: 'all 0.2s' }}>
-          <Save size={13} strokeWidth={2} />
-          {saved ? 'Enregistré' : saving ? '...' : 'Enregistrer'}
-        </button>
-        <button onClick={handleDelete} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 8, background: 'none', border: '1px solid rgba(220,50,50,0.25)', color: 'rgba(248,113,113,0.7)', cursor: 'pointer', fontSize: 13 }}>
-          <Trash2 size={13} strokeWidth={1.8} />
-          Supprimer
-        </button>
-      </div>
+    <div style={{ maxWidth: 720 }}>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: 'rgba(240,235,228,0.35)', flexWrap: 'wrap' }}>
         <Link href="/bureau/projets" style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>Projets</Link>
@@ -136,6 +125,17 @@ export default function TaskDetailPage() {
         <div>
           <SectionLabel icon={MessageSquare} label="Commentaires" />
           {currentUserId && <TaskComments taskId={taskId} currentUserId={currentUserId} currentUserRole={currentUserRole} />}
+        </div>
+
+        <div style={{ display: 'flex', gap: 8, paddingTop: 8 }}>
+          <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '10px 18px', borderRadius: 8, border: 'none', background: saved ? 'rgba(134,239,172,0.15)' : 'linear-gradient(135deg, #e8946a, #c27b5b)', color: saved ? '#86efac' : '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13, transition: 'all 0.2s' }}>
+            <Save size={13} strokeWidth={2} />
+            {saved ? 'Enregistré' : saving ? '...' : 'Enregistrer'}
+          </button>
+          <button onClick={handleDelete} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '10px 14px', borderRadius: 8, background: 'none', border: '1px solid rgba(220,50,50,0.25)', color: 'rgba(248,113,113,0.7)', cursor: 'pointer', fontSize: 13, marginLeft: 'auto' }}>
+            <Trash2 size={13} strokeWidth={1.8} />
+            Supprimer
+          </button>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { validateSession, getAllUsers, createUser } from '@/lib/db/users'
+import { prisma } from '@/lib/db/prisma'
 import type { Role } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
@@ -17,7 +18,10 @@ async function requireAdmin() {
 export async function GET() {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
   const users = await getAllUsers()
-  return NextResponse.json({ users })
+  const projectCounts = await prisma.project.groupBy({ by: ['clientId'], _count: { id: true } })
+  const countMap = Object.fromEntries(projectCounts.map(r => [r.clientId, r._count.id]))
+  const usersWithCount = users.map(u => ({ ...u, projectCount: countMap[u.id] ?? 0 }))
+  return NextResponse.json({ users: usersWithCount })
 }
 
 export async function POST(request: NextRequest) {
