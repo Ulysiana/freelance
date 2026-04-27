@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { validateSession, updateUser, deleteUser } from '@/lib/db/users'
 import { prisma } from '@/lib/db/prisma'
+import { CURRENCIES } from '@/lib/currency'
 import { validatePassword } from '@/lib/password'
 import type { Role } from '@prisma/client'
 
@@ -22,7 +23,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   const { id } = await params
   const user = await prisma.user.findUnique({
     where: { id },
-    select: { id: true, name: true, email: true, phone: true, company: true, address: true, role: true, createdAt: true, pseudo: true },
+    select: { id: true, name: true, email: true, phone: true, company: true, address: true, role: true, createdAt: true, pseudo: true, billingCurrency: true },
   })
   if (!user) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
   return NextResponse.json({ user })
@@ -32,12 +33,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const admin = await requireAdmin()
   if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
   const { id } = await params
-  const { name, pseudo, email, password, role } = await request.json()
+  const { name, pseudo, email, password, role, billingCurrency } = await request.json()
   if (password) {
     const pwdError = validatePassword(password)
     if (pwdError) return NextResponse.json({ error: pwdError }, { status: 400 })
   }
-  const user = await updateUser(id, { name, pseudo, email, password, role: role as Role | undefined })
+  if (billingCurrency !== undefined && billingCurrency !== null && !CURRENCIES.includes(billingCurrency))
+    return NextResponse.json({ error: 'Devise invalide' }, { status: 400 })
+  const user = await updateUser(id, { name, pseudo, email, password, role: role as Role | undefined, billingCurrency: billingCurrency ?? undefined })
   return NextResponse.json({ user })
 }
 

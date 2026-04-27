@@ -16,11 +16,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ re
   const user = await requireAuth()
   if (!user || user.role !== 'ADMIN') return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
   const { requestId } = await params
-  const { status } = await req.json()
+  const { status, phaseId, taskId } = await req.json()
   const request = await prisma.projectRequest.update({
     where: { id: requestId },
-    data: { status },
-    include: { author: { select: { id: true, name: true, pseudo: true, role: true } } },
+    data: {
+      ...(status !== undefined && { status }),
+      ...(phaseId !== undefined && { phaseId: phaseId || null }),
+      ...(taskId !== undefined && { taskId: taskId || null }),
+    },
+    include: {
+      author: { select: { id: true, name: true, pseudo: true, role: true } },
+      phase:  { select: { id: true, name: true } },
+      task:   { select: { id: true, title: true } },
+    },
   })
   return NextResponse.json({ request })
 }

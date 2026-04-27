@@ -5,7 +5,7 @@ export async function getAllProjects() {
   return prisma.project.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
-      client: { select: { id: true, name: true, pseudo: true, email: true } },
+      client: { select: { id: true, name: true, pseudo: true, email: true, billingCurrency: true } },
       collaborators: { include: { collaborator: { select: { id: true, name: true, pseudo: true } } } },
     },
   })
@@ -15,7 +15,7 @@ export async function getProjectById(id: string) {
   return prisma.project.findUnique({
     where: { id },
     include: {
-      client: { select: { id: true, name: true, pseudo: true, email: true } },
+      client: { select: { id: true, name: true, pseudo: true, email: true, billingCurrency: true } },
       collaborators: { include: { collaborator: { select: { id: true, name: true, pseudo: true } } } },
       _count: { select: { messages: true, documents: true, requests: true, phases: true, htmlPages: true } },
       messages: { orderBy: { createdAt: 'desc' }, take: 3, select: { id: true, content: true, createdAt: true, author: { select: { name: true, pseudo: true, role: true } } } },
@@ -58,7 +58,7 @@ export async function createProject(data: {
         : undefined,
     },
     include: {
-      client: { select: { id: true, name: true, pseudo: true, email: true } },
+      client: { select: { id: true, name: true, pseudo: true, email: true, billingCurrency: true } },
       collaborators: { include: { collaborator: { select: { id: true, name: true, pseudo: true } } } },
     },
   })
@@ -89,7 +89,7 @@ export async function updateProject(id: string, data: {
     where: { id },
     data: rest,
     include: {
-      client: { select: { id: true, name: true, pseudo: true, email: true } },
+      client: { select: { id: true, name: true, pseudo: true, email: true, billingCurrency: true } },
       collaborators: { include: { collaborator: { select: { id: true, name: true, pseudo: true } } } },
     },
   })

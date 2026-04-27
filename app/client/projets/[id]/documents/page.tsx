@@ -2,9 +2,12 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
-import { FileText, Download, ChevronRight, Clock, Eye, Paperclip } from 'lucide-react'
+import { FileText, Download, Clock, Eye, Paperclip, Globe } from 'lucide-react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { linkifyHtmlContent } from '@/lib/richText'
+
+const HtmlPageGallery = dynamic(() => import('@/components/admin/HtmlPageGallery'), { ssr: false })
 
 type Doc = {
   id: string; title: string; content: string; updatedAt: string
@@ -33,7 +36,7 @@ function fileIcon(mimeType: string) {
 
 export default function ClientDocumentsPage() {
   const { id } = useParams<{ id: string }>()
-  const [tab, setTab] = useState<'docs' | 'files'>('docs')
+  const [tab, setTab] = useState<'docs' | 'files' | 'pages'>('docs')
   const [docs, setDocs] = useState<Doc[]>([])
   const [files, setFiles] = useState<ProjectFile[]>([])
   const [projectName, setProjectName] = useState('')
@@ -76,7 +79,7 @@ export default function ClientDocumentsPage() {
     window.open(url, '_blank')
   }
 
-  const tabStyle = (active: boolean) => ({
+  const tabStyle = (active: boolean): React.CSSProperties => ({
     padding: '6px 16px', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none',
     background: active ? 'rgba(232,148,106,0.15)' : 'transparent',
     color: active ? '#e8946a' : 'rgba(240,235,228,0.4)',
@@ -85,19 +88,6 @@ export default function ClientDocumentsPage() {
 
   return (
     <div style={{ maxWidth: 680 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>
-        <Link href="/client/projets" style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>Projets</Link>
-        <ChevronRight size={12} strokeWidth={1.5} />
-        <Link href={`/client/projets/${id}`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{projectName || '…'}</Link>
-        <ChevronRight size={12} strokeWidth={1.5} />
-        <span style={{ color: 'rgba(240,235,228,0.6)' }}>Documents</span>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-        <FileText size={20} strokeWidth={1.8} style={{ color: '#e8946a' }} />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Documents</h1>
-      </div>
-
       <div style={{ display: 'flex', gap: 4, marginBottom: 24, padding: '4px', background: 'rgba(255,255,255,0.04)', borderRadius: 8, width: 'fit-content' }}>
         <button style={tabStyle(tab === 'docs')} onClick={() => setTab('docs')}>
           <FileText size={12} strokeWidth={2} style={{ display: 'inline', marginRight: 6 }} />
@@ -106,6 +96,10 @@ export default function ClientDocumentsPage() {
         <button style={tabStyle(tab === 'files')} onClick={() => setTab('files')}>
           <Paperclip size={12} strokeWidth={2} style={{ display: 'inline', marginRight: 6 }} />
           Fichiers ({files.length})
+        </button>
+        <button style={tabStyle(tab === 'pages')} onClick={() => setTab('pages')}>
+          <Globe size={12} strokeWidth={2} style={{ display: 'inline', marginRight: 6 }} />
+          Pages
         </button>
       </div>
 
@@ -167,6 +161,8 @@ export default function ClientDocumentsPage() {
           </div>
         )
       )}
+
+      {tab === 'pages' && <HtmlPageGallery projectId={id} isAdmin={false} />}
 
       {selected && (
         <div ref={printRef} style={{ position: 'absolute', left: '-9999px', top: 0, width: 700, padding: 40, background: '#fff', color: '#000', fontFamily: 'sans-serif' }}>

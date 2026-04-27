@@ -70,8 +70,8 @@ export default function ParametresPage() {
 
           {/* Devise */}
           <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 24 }}>
-            <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 6, color: '#f0ebe4' }}>Devise de facturation</h2>
-            <p style={{ fontSize: 12, color: 'rgba(240,235,228,0.35)', marginBottom: 16 }}>Utilisée pour afficher tous les montants dans l'app.</p>
+            <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 6, color: '#f0ebe4' }}>Devise par défaut</h2>
+            <p style={{ fontSize: 12, color: 'rgba(240,235,228,0.35)', marginBottom: 16 }}>Utilisée comme valeur par défaut pour les nouveaux clients et comme fallback pour les anciens enregistrements.</p>
             <div style={{ display: 'flex', gap: 10 }}>
               {CURRENCIES.map(c => (
                 <button key={c.value} onClick={() => setCurrency(c.value)}
@@ -92,7 +92,7 @@ export default function ParametresPage() {
           {/* Heures par jour */}
           <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 24 }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 6, color: '#f0ebe4' }}>Suivi du temps</h2>
-            <p style={{ fontSize: 12, color: 'rgba(240,235,228,0.35)', marginBottom: 16 }}>Définit la durée d'une journée pour le calcul du TJM.</p>
+            <p style={{ fontSize: 12, color: 'rgba(240,235,228,0.35)', marginBottom: 16 }}>Définit la durée d&apos;une journée pour le calcul du TJM.</p>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <span style={{ fontSize: 13, color: 'rgba(240,235,228,0.6)' }}>Heures par jour</span>

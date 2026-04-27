@@ -5,10 +5,11 @@ import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import { useIsMobile } from '@/lib/useIsMobile'
 
-type User = { id: string; name: string | null; pseudo: string | null; email: string; role: string; createdAt: string; projectCount: number }
+type User = { id: string; name: string | null; pseudo: string | null; email: string; role: string; createdAt: string; projectCount: number; billingCurrency: string | null }
 type ModalState = { mode: 'create' } | { mode: 'edit'; user: User } | null
 
 const ROLES = ['ADMIN', 'COLLABORATEUR', 'CLIENT']
+const CURRENCIES = ['EUR', 'USD', 'GBP']
 
 const inputStyle: React.CSSProperties = {
   width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
@@ -27,6 +28,7 @@ function UserModal({ modal, onClose, onSaved }: { modal: ModalState; onClose: ()
   const [email, setEmail] = useState(user?.email || '')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState(user?.role || 'CLIENT')
+  const [billingCurrency, setBillingCurrency] = useState(user?.billingCurrency || 'EUR')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -37,7 +39,7 @@ function UserModal({ modal, onClose, onSaved }: { modal: ModalState; onClose: ()
     try {
       const url = isEdit ? `/api/admin/users/${user!.id}` : '/api/admin/users'
       const method = isEdit ? 'PATCH' : 'POST'
-      const body: Record<string, string> = { name, pseudo, email, role }
+      const body: Record<string, string | null> = { name, pseudo, email, role, billingCurrency: role === 'CLIENT' ? billingCurrency : null }
       if (password) body.password = password
       if (!isEdit) body.password = password
 
@@ -72,6 +74,14 @@ function UserModal({ modal, onClose, onSaved }: { modal: ModalState; onClose: ()
               {ROLES.map(r => <option key={r} value={r} style={{ background: '#111' }}>{r}</option>)}
             </select>
           </div>
+          {role === 'CLIENT' && (
+            <div>
+              <label style={labelStyle}>Devise client</label>
+              <select style={{ ...inputStyle, cursor: 'pointer' }} value={billingCurrency} onChange={e => setBillingCurrency(e.target.value)}>
+                {CURRENCIES.map(currency => <option key={currency} value={currency} style={{ background: '#111' }}>{currency}</option>)}
+              </select>
+            </div>
+          )}
           <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
             <button type="button" onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,235,228,0.6)', cursor: 'pointer', fontSize: 13 }}>Annuler</button>
             <button type="submit" disabled={loading} style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13, opacity: loading ? 0.7 : 1 }}>

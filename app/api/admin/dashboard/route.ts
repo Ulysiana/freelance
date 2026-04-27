@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { validateSession } from '@/lib/db/users'
 import { prisma } from '@/lib/db/prisma'
+import { normalizeCurrency, resolveCurrency } from '@/lib/currency'
 
 export const dynamic = 'force-dynamic'
 const COOKIE = 'session_token'
@@ -80,22 +81,28 @@ export async function GET() {
 
   const revenueData = await prisma.timeSession.findMany({
     where: { startedAt: { gte: startOfMonth }, durationSeconds: { not: null } },
-    include: { task: { include: { phase: { include: { project: { select: { tjm: true } } } } } } },
+    include: { task: { include: { phase: { include: { project: { select: { tjm: true, client: { select: { billingCurrency: true } } } } } } } } },
   })
-  const revenueThisMonth = revenueData.reduce((sum, s) => {
+  const revenueThisMonthByCurrency = revenueData.reduce<Record<string, number>>((acc, s) => {
     const tjm = s.task.phase.project.tjm
-    return sum + ((s.durationSeconds || 0) / secondsPerDay) * tjm
-  }, 0)
+    const currency = resolveCurrency(s.task.phase.project.client.billingCurrency, settings.currency)
+    acc[currency] = (acc[currency] || 0) + ((s.durationSeconds || 0) / secondsPerDay) * tjm
+    return acc
+  }, {})
 
   return NextResponse.json({
-    currency: settings.currency,
+    defaultCurrency: normalizeCurrency(settings.currency),
     stats: {
       activeProjects,
       totalProjects,
       totalClients,
       pendingRequests,
       timeSecondsThisMonth: timeThisMonth._sum.durationSeconds || 0,
-      revenueThisMonth: Math.round(revenueThisMonth),
+      revenueThisMonthByCurrency: Object.fromEntries(
+        Object.entries(revenueThisMonthByCurrency)
+          .filter(([, value]) => value > 0)
+          .map(([currency, value]) => [currency, Math.round(value)])
+      ),
     },
     tasksByStatus: Object.fromEntries(tasksByStatus.map(t => [t.status, t._count.id])),
     recentMessages,

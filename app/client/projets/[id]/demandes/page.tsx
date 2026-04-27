@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 
 type Request = {
   id: string
@@ -21,24 +21,16 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 
 export default function ClientDemandesPage() {
   const { id } = useParams<{ id: string }>()
-  const router = useRouter()
   const [requests, setRequests] = useState<Request[]>([])
-  const [projectName, setProjectName] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [sending, setSending] = useState(false)
 
   async function load() {
-    const [projectsRes, reqRes] = await Promise.all([
-      fetch('/api/client/projects'),
-      fetch(`/api/admin/projects/${id}/requests`),
-    ])
-    const projectsData = await projectsRes.json()
-    const reqData = await reqRes.json()
-    const project = (projectsData.projects || []).find((p: { id: string; name: string }) => p.id === id)
-    setProjectName(project?.name || '')
-    setRequests(reqData.requests || [])
+    const res = await fetch(`/api/admin/projects/${id}/requests`)
+    const data = await res.json()
+    setRequests(data.requests || [])
   }
 
   useEffect(() => { load() }, [id])
@@ -61,13 +53,14 @@ export default function ClientDemandesPage() {
 
   return (
     <div style={{ maxWidth: 680 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-        <button onClick={() => router.push(`/client/projets/${id}`)} style={{ background: 'none', border: 'none', color: 'rgba(240,235,228,0.4)', cursor: 'pointer', fontSize: 20, padding: 0 }}>←</button>
-        <div style={{ flex: 1 }}>
-          <h1 style={{ fontSize: 18, fontWeight: 700, color: '#f0ebe4', margin: 0 }}>Mes demandes</h1>
-          <span style={{ fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>{projectName}</span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+        <div>
+          <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Mes demandes</h2>
+          <p style={{ fontSize: 12, color: 'rgba(240,235,228,0.35)', margin: '4px 0 0' }}>
+            Demandez une modification, une évolution ou posez une question.
+          </p>
         </div>
-        <button onClick={() => setShowForm(v => !v)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 12 }}>
+        <button onClick={() => setShowForm(v => !v)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 12, flexShrink: 0 }}>
           + Nouvelle demande
         </button>
       </div>

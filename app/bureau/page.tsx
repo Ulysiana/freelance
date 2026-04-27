@@ -21,14 +21,14 @@ type ClientWithProjects = {
 }
 
 type DashboardData = {
-  currency: string
+  defaultCurrency: string
   stats: {
     activeProjects: number
     totalProjects: number
     totalClients: number
     pendingRequests: number
     timeSecondsThisMonth: number
-    revenueThisMonth: number
+    revenueThisMonthByCurrency: Record<string, number>
   }
   tasksByStatus: Record<string, number>
   recentMessages: {
@@ -146,12 +146,14 @@ function ClientCard({ client }: { client: ClientWithProjects }) {
 export default function AdminDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [view, setView] = useState<'overview' | 'clients'>('overview')
-  const [seenIds, setSeenIds] = useState<Set<string>>(new Set())
+  const [seenIds] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set()
+    const stored = JSON.parse(localStorage.getItem('seen_messages') || '[]') as string[]
+    return new Set(stored)
+  })
   const isMobile = useIsMobile()
 
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('seen_messages') || '[]') as string[]
-    setSeenIds(new Set(stored))
     fetch('/api/admin/dashboard').then(r => r.json()).then(setData)
   }, [])
 
@@ -162,15 +164,24 @@ export default function AdminDashboard() {
     </div>
   )
 
-  const { currency, stats, tasksByStatus, recentRequests, clientsWithProjects } = data
+  const { defaultCurrency, stats, tasksByStatus, recentRequests, clientsWithProjects } = data
   const recentMessages = data.recentMessages.filter(m => !seenIds.has(m.id))
   const totalTasks = Object.values(tasksByStatus).reduce((a, b) => a + b, 0)
+  const revenueEntries = Object.entries(stats.revenueThisMonthByCurrency || {})
+  const revenueValue =
+    revenueEntries.length <= 1
+      ? formatAmount(revenueEntries[0]?.[1] || 0, revenueEntries[0]?.[0] || defaultCurrency, 0)
+      : `${revenueEntries.length} devises`
+  const revenueSub =
+    revenueEntries.length <= 1
+      ? 'basé sur TJM'
+      : revenueEntries.map(([currency, amount]) => formatAmount(amount, currency, 0)).join(' · ')
 
   const statCards = [
     { label: 'Projets actifs',    value: stats.activeProjects,    sub: `${stats.totalProjects} au total`,   icon: FolderKanban, color: '#7dd3fc' },
     { label: 'Clients',           value: stats.totalClients,      sub: 'comptes clients',                   icon: Users,        color: '#86efac' },
     { label: 'Temps ce mois',     value: formatSeconds(stats.timeSecondsThisMonth), sub: 'temps pointé',   icon: Clock,        color: '#e8946a' },
-    { label: 'CA estimé ce mois', value: formatAmount(stats.revenueThisMonth, currency, 0), sub: 'basé sur TJM', icon: TrendingUp, color: '#c084fc' },
+    { label: 'CA estimé ce mois', value: revenueValue, sub: revenueSub, icon: TrendingUp, color: '#c084fc' },
   ]
 
   return (

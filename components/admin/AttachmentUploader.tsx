@@ -56,7 +56,7 @@ function Viewer({ att, onClose }: { att: Attachment & { signedUrl?: string }; on
   )
 }
 
-export default function AttachmentUploader({ taskId, isAdmin }: { taskId: string; isAdmin: boolean }) {
+export default function AttachmentUploader({ taskId, isAdmin, locked = false }: { taskId: string; isAdmin: boolean; locked?: boolean }) {
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
@@ -69,9 +69,14 @@ export default function AttachmentUploader({ taskId, isAdmin }: { taskId: string
     setAttachments(data.attachments || [])
   }
 
-  useEffect(() => { load() }, [taskId])
+  useEffect(() => {
+    fetch(`/api/admin/tasks/${taskId}/attachments`)
+      .then(res => res.json())
+      .then(data => setAttachments(data.attachments || []))
+  }, [taskId])
 
   async function uploadFile(file: File) {
+    if (locked) return
     setUploading(true)
     const form = new FormData()
     form.append('file', file)
@@ -87,6 +92,7 @@ export default function AttachmentUploader({ taskId, isAdmin }: { taskId: string
   }
 
   async function del(id: string) {
+    if (locked) return
     setAttachments(a => a.filter(x => x.id !== id))
     await fetch(`/api/admin/attachments/${id}`, { method: 'DELETE' })
   }
@@ -103,17 +109,18 @@ export default function AttachmentUploader({ taskId, isAdmin }: { taskId: string
       {/* Zone de dépôt */}
       <div
         onClick={() => inputRef.current?.click()}
+        onClickCapture={e => { if (locked) e.preventDefault() }}
         onDragOver={e => { e.preventDefault(); setDragOver(true) }}
         onDragLeave={() => setDragOver(false)}
-        onDrop={e => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files) }}
-        style={{ border: `1px dashed ${dragOver ? '#e8946a' : 'rgba(255,255,255,0.1)'}`, borderRadius: 10, padding: '20px', textAlign: 'center', cursor: 'pointer', background: dragOver ? 'rgba(232,148,106,0.05)' : 'rgba(255,255,255,0.02)', transition: 'all 0.15s', marginBottom: 12 }}>
-        <input ref={inputRef} type="file" multiple style={{ display: 'none' }} onChange={e => handleFiles(e.target.files)} />
+        onDrop={e => { e.preventDefault(); setDragOver(false); if (!locked) void handleFiles(e.dataTransfer.files) }}
+        style={{ border: `1px dashed ${dragOver ? '#e8946a' : 'rgba(255,255,255,0.1)'}`, borderRadius: 10, padding: '20px', textAlign: 'center', cursor: locked ? 'not-allowed' : 'pointer', background: dragOver ? 'rgba(232,148,106,0.05)' : 'rgba(255,255,255,0.02)', transition: 'all 0.15s', marginBottom: 12, opacity: locked ? 0.6 : 1 }}>
+        <input ref={inputRef} type="file" multiple style={{ display: 'none' }} onChange={e => handleFiles(e.target.files)} disabled={locked} />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
           {uploading
             ? <span style={{ fontSize: 13, color: '#e8946a' }}>Envoi en cours...</span>
             : <>
                 <Upload size={18} strokeWidth={1.5} style={{ color: 'rgba(240,235,228,0.3)' }} />
-                <span style={{ fontSize: 13, color: 'rgba(240,235,228,0.4)' }}>Glisser-déposer ou <span style={{ color: '#e8946a' }}>parcourir</span></span>
+                <span style={{ fontSize: 13, color: 'rgba(240,235,228,0.4)' }}>{locked ? 'Ajout verrouillé sur une tâche terminée' : <>Glisser-déposer ou <span style={{ color: '#e8946a' }}>parcourir</span></>}</span>
                 <span style={{ fontSize: 11, color: 'rgba(240,235,228,0.2)' }}>Max 20 Mo par fichier</span>
               </>
           }
@@ -144,8 +151,8 @@ export default function AttachmentUploader({ taskId, isAdmin }: { taskId: string
                 <Download size={13} strokeWidth={1.8} />
               </a>
               {isAdmin && (
-                <button className="del-btn" onClick={() => del(a.id)}
-                  style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', color: 'rgba(248,113,113,0.5)', cursor: 'pointer', padding: '4px', opacity: 0, transition: 'opacity 0.15s' }}>
+                <button className="del-btn" onClick={() => del(a.id)} disabled={locked}
+                  style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', color: 'rgba(248,113,113,0.5)', cursor: locked ? 'not-allowed' : 'pointer', padding: '4px', opacity: locked ? 0.2 : 0, transition: 'opacity 0.15s' }}>
                   <Trash2 size={13} strokeWidth={1.8} />
                 </button>
               )}

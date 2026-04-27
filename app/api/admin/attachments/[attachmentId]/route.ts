@@ -27,8 +27,11 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ att
   const user = await requireAuth()
   if (!user || user.role !== 'ADMIN') return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
   const { attachmentId } = await params
-  const att = await prisma.attachment.findUnique({ where: { id: attachmentId } })
+  const att = await prisma.attachment.findUnique({ where: { id: attachmentId }, include: { task: { select: { status: true } } } })
   if (!att) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
+  if (att.task.status === 'DONE' || att.task.status === 'VALIDATED') {
+    return NextResponse.json({ error: 'Pièces jointes verrouillées sur une tâche terminée' }, { status: 403 })
+  }
   await deleteFromR2(att.filename)
   await prisma.attachment.delete({ where: { id: attachmentId } })
   return NextResponse.json({ ok: true })

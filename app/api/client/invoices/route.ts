@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { validateSession } from '@/lib/db/users'
 import { prisma } from '@/lib/db/prisma'
+import { resolveCurrency } from '@/lib/currency'
 
 export const dynamic = 'force-dynamic'
 const COOKIE = 'session_token'
@@ -22,5 +23,5 @@ export async function GET() {
       orderBy: { issuedAt: 'desc' },
     }),
   ])
-  return NextResponse.json({ invoices, currency: settings.currency })
+  return NextResponse.json({ invoices, currency: resolveCurrency(user.billingCurrency, settings.currency) })
 }

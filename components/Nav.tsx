@@ -6,7 +6,7 @@ const links = [
   { href: "#offers", label: "Offres" },
   { href: "#story", label: "Histoire" },
   { href: "#projects", label: "Réalisations" },
-  { href: "/hebergeurs", label: "Gîtes & Locations" },
+  { href: "/hebergeurs", label: "Expertises" },
 ];
 
 const clientLink = { href: "/login", label: "Espace client" };

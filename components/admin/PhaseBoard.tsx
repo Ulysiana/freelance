@@ -33,7 +33,12 @@ export default function PhaseBoard({ phases: initial, projectId, isAdmin, taskBa
 
   async function deletePhase(id: string) {
     if (!confirm('Supprimer cette phase et toutes ses tâches ?')) return
-    await fetch(`/api/admin/phases/${id}`, { method: 'DELETE' })
+    const res = await fetch(`/api/admin/phases/${id}`, { method: 'DELETE' })
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      alert(data.error || 'Suppression impossible')
+      return
+    }
     reload()
   }
 
@@ -47,13 +52,20 @@ export default function PhaseBoard({ phases: initial, projectId, isAdmin, taskBa
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {phases.map(phase => (
+      {phases.map(phase => {
+        const allValidated = phase.tasks.length > 0 && phase.tasks.every(task => task.status === 'VALIDATED')
+        return (
         <div key={phase.id} style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
             <span style={{ fontWeight: 600, fontSize: 14 }}>{phase.name}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>{phase.tasks.length} tâche{phase.tasks.length !== 1 ? 's' : ''}</span>
-              {isAdmin && <button onClick={() => deletePhase(phase.id)} style={{ background: 'none', border: 'none', color: 'rgba(248,113,113,0.5)', cursor: 'pointer', fontSize: 18, lineHeight: 1, padding: 0 }}>×</button>}
+              {allValidated && (
+                <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 999, background: 'rgba(134,239,172,0.12)', border: '1px solid rgba(134,239,172,0.22)', color: '#86efac' }}>
+                  Phase validée
+                </span>
+              )}
+              {isAdmin && !allValidated && <button onClick={() => deletePhase(phase.id)} style={{ background: 'none', border: 'none', color: 'rgba(248,113,113,0.5)', cursor: 'pointer', fontSize: 18, lineHeight: 1, padding: 0 }}>×</button>}
             </div>
           </div>
 
@@ -81,7 +93,7 @@ export default function PhaseBoard({ phases: initial, projectId, isAdmin, taskBa
             </div>
           )}
         </div>
-      ))}
+      )})}
 
       {isAdmin && (
         <div style={{ display: 'flex', gap: 8 }}>

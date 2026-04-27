@@ -36,28 +36,21 @@ export default function DocumentsPage() {
   const [tab, setTab] = useState<'docs' | 'files'>('docs')
   const [docs, setDocs] = useState<Doc[]>([])
   const [files, setFiles] = useState<ProjectFile[]>([])
-  const [projectName, setProjectName] = useState('')
   const [newTitle, setNewTitle] = useState('')
   const [creating, setCreating] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  async function load() {
-    const [projRes, docsRes, filesRes] = await Promise.all([
-      fetch(`/api/admin/projects/${id}`),
-      fetch(`/api/admin/projects/${id}/documents`),
-      fetch(`/api/admin/projects/${id}/files`),
-    ])
-    const projData = await projRes.json()
-    const docsData = await docsRes.json()
-    const filesData = await filesRes.json()
-    setProjectName(projData.project?.name || '')
-    setDocs(docsData.documents || [])
-    setFiles(filesData.files || [])
-  }
-
-  useEffect(() => { load() }, [id])
+  useEffect(() => {
+    Promise.all([
+      fetch(`/api/admin/projects/${id}/documents`).then(r => r.json()),
+      fetch(`/api/admin/projects/${id}/files`).then(r => r.json()),
+    ]).then(([docsData, filesData]) => {
+      setDocs(docsData.documents || [])
+      setFiles(filesData.files || [])
+    })
+  }, [id])
 
   async function create() {
     if (!newTitle.trim()) return
@@ -123,17 +116,14 @@ export default function DocumentsPage() {
 
   return (
     <div style={{ maxWidth: 720 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>
-        <Link href="/bureau/projets" style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>Projets</Link>
-        <ChevronRight size={12} strokeWidth={1.5} />
-        <Link href={`/bureau/projets/${id}`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{projectName || '…'}</Link>
-        <ChevronRight size={12} strokeWidth={1.5} />
-        <span style={{ color: 'rgba(240,235,228,0.6)' }}>Documents</span>
-      </div>
-
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
         <FileText size={20} strokeWidth={1.8} style={{ color: '#e8946a' }} />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Documents</h1>
+        <div>
+          <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Documents et fichiers</h2>
+          <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(240,235,228,0.4)' }}>
+            Centralise les contenus texte et les pièces jointes du projet.
+          </p>
+        </div>
       </div>
 
       {/* Tabs */}

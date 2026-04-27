@@ -18,7 +18,7 @@ type Project = {
 type RecentMessage = { id: string; content: string; createdAt: string; author: { name: string | null; pseudo: string | null; role: string }; project: { id: string; name: string } }
 type RecentRequest = { id: string; title: string; status: string; updatedAt: string; project: { id: string; name: string } }
 type RecentDoc = { id: string; title: string; updatedAt: string; project: { id: string; name: string } }
-type InvoicePending = { id: string; number: string; amount: number; dueAt: string | null }
+type InvoicePending = { id: string; number: string; amount: number; currency: string | null; dueAt: string | null }
 
 type DashboardData = {
   currency: string
@@ -168,7 +168,7 @@ export default function ClientDashboard() {
               {invoicesPending.length} facture{invoicesPending.length > 1 ? 's' : ''} en attente de règlement
             </div>
             <div style={{ fontSize: 12, color: 'rgba(240,235,228,0.4)', marginTop: 1 }}>
-              {invoicesPending.map(i => `${i.number} — ${formatAmount(i.amount, currency, 0)}`).join(' · ')}
+              {invoicesPending.map(i => `${i.number} — ${formatAmount(i.amount, i.currency || currency, 0)}`).join(' · ')}
             </div>
           </div>
           <ChevronRight size={14} strokeWidth={1.5} style={{ color: '#f87171', flexShrink: 0 }} />

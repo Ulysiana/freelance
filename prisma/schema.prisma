@@ -15,6 +15,7 @@ model User {
   name         String?
   pseudo       String?
   role         Role      @default(CLIENT)
+  billingCurrency String? @map("billing_currency")
   phone        String?
   company      String?
   address      String?   @db.Text
@@ -40,6 +41,7 @@ model User {
   invoices              Invoice[]
   projectLinks          ProjectLink[]
   taskLinks             TaskLink[]
+  phaseLinks            PhaseLink[]
 
   @@map("users")
 }
@@ -115,8 +117,11 @@ model Phase {
   projectId String   @map("project_id")
   createdAt DateTime @default(now()) @map("created_at")
 
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  tasks     Task[]
+  project      Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks        Task[]
+  requests     ProjectRequest[]
+  projectFiles ProjectFile[]
+  phaseLinks   PhaseLink[]
 
   @@map("phases")
 }
@@ -130,12 +135,14 @@ model Task {
   createdAt   DateTime   @default(now()) @map("created_at")
   updatedAt   DateTime   @updatedAt @map("updated_at")
 
-  phase        Phase         @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  phase        Phase            @relation(fields: [phaseId], references: [id], onDelete: Cascade)
   todos        TodoItem[]
   timeSessions TimeSession[]
   comments     TaskComment[]
   attachments  Attachment[]
   links        TaskLink[]
+  requests     ProjectRequest[]
+  resources    TaskResource[]
 
   @@map("tasks")
 }
@@ -178,6 +185,21 @@ model TimeSession {
   @@map("time_sessions")
 }
 
+model TimeSessionDeletionLog {
+  id              String   @id @default(cuid())
+  sessionId       String   @map("session_id")
+  taskId          String   @map("task_id")
+  userId          String   @map("user_id")
+  startedAt       DateTime @map("started_at")
+  endedAt         DateTime @map("ended_at")
+  durationSeconds Int      @map("duration_seconds")
+  reason          String   @db.Text
+  deletedById     String   @map("deleted_by_id")
+  deletedAt       DateTime @default(now()) @map("deleted_at")
+
+  @@map("time_session_deletion_logs")
+}
+
 // ==================== MESSAGERIE ====================
 
 model Message {
@@ -203,8 +225,9 @@ model HtmlPage {
   filename         String
   createdAt        DateTime @default(now()) @map("created_at")
 
-  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  uploadedBy       User     @relation(fields: [uploadedByUserId], references: [id])
+  project          Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedBy       User           @relation(fields: [uploadedByUserId], references: [id])
+  taskResources    TaskResource[]
 
   @@map("html_pages")
 }
@@ -220,8 +243,9 @@ model Document {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  author    User     @relation(fields: [authorId], references: [id])
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author        User           @relation(fields: [authorId], references: [id])
+  taskResources TaskResource[]
 
   @@map("documents")
 }
@@ -250,14 +274,17 @@ model ProjectFile {
   id           String   @id @default(cuid())
   projectId    String   @map("project_id")
   uploadedById String   @map("uploaded_by_id")
+  phaseId      String?  @map("phase_id")
   filename     String
   originalName String   @map("original_name")
   mimeType     String   @map("mime_type")
   size         Int
   uploadedAt   DateTime @default(now()) @map("uploaded_at")
 
-  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedBy    User           @relation(fields: [uploadedById], references: [id])
+  phase         Phase?         @relation(fields: [phaseId], references: [id], onDelete: SetNull)
+  taskResources TaskResource[]
 
   @@map("project_files")
 }
@@ -288,6 +315,7 @@ model Invoice {
   clientId    String        @map("client_id")
   number      String
   amount      Float
+  currency    String?
   status      InvoiceStatus @default(PENDING)
   issuedAt    DateTime      @map("issued_at")
   dueAt       DateTime?     @map("due_at")
@@ -329,6 +357,8 @@ model ProjectRequest {
   id          String        @id @default(cuid())
   projectId   String        @map("project_id")
   authorId    String        @map("author_id")
+  phaseId     String?       @map("phase_id")
+  taskId      String?       @map("task_id")
   title       String
   description String?       @db.Text
   status      RequestStatus @default(PENDING)
@@ -337,6 +367,8 @@ model ProjectRequest {
 
   project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   author      User          @relation(fields: [authorId], references: [id])
+  phase       Phase?        @relation(fields: [phaseId], references: [id], onDelete: SetNull)
+  task        Task?         @relation(fields: [taskId], references: [id], onDelete: SetNull)
 
   @@map("project_requests")
 }
@@ -390,6 +422,40 @@ model TaskLink {
   addedBy     User     @relation(fields: [addedById], references: [id])
 
   @@map("task_links")
+}
+
+// ==================== RESSOURCES PAR PHASE ====================
+
+model PhaseLink {
+  id        String   @id @default(cuid())
+  phaseId   String   @map("phase_id")
+  url       String
+  title     String?
+  addedById String   @map("added_by_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  phase     Phase    @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  addedBy   User     @relation(fields: [addedById], references: [id])
+
+  @@map("phase_links")
+}
+
+// ==================== RESSOURCES LIÉES AUX TÂCHES ====================
+
+model TaskResource {
+  id        String   @id @default(cuid())
+  taskId    String   @map("task_id")
+  fileId    String?  @map("file_id")
+  pageId    String?  @map("page_id")
+  docId     String?  @map("doc_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  task     Task          @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  file     ProjectFile?  @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  page     HtmlPage?     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  document Document?     @relation(fields: [docId], references: [id], onDelete: Cascade)
+
+  @@map("task_resources")
 }
 
 // ==================== INVITATIONS ====================

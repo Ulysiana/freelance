@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { User, FileText, Receipt, Shield, Save, Eye, Download, ChevronRight, Upload, Check } from 'lucide-react'
+import { User, FileText, Receipt, Shield, Save, Eye, Download, Check } from 'lucide-react'
 import Link from 'next/link'
 import { formatAmount } from '@/lib/currency'
 
 type Profile = { id: string; name: string | null; email: string; phone: string | null; company: string | null; address: string | null }
 type Contract = { id: string; originalName: string; mimeType: string; size: number; label: string | null; uploadedAt: string; uploadedBy: { name: string | null; pseudo: string | null } }
-type Invoice = { id: string; number: string; amount: number; status: string; issuedAt: string; dueAt: string | null; filename: string | null }
+type Invoice = { id: string; number: string; amount: number; currency: string | null; status: string; issuedAt: string; dueAt: string | null; filename: string | null }
 
 const invoiceStatusLabel: Record<string, string> = { PENDING: 'En attente', PAID: 'Payée', OVERDUE: 'En retard', CANCELLED: 'Annulée' }
 const invoiceStatusColor: Record<string, string> = { PENDING: '#e8946a', PAID: '#86efac', OVERDUE: '#f87171', CANCELLED: 'rgba(240,235,228,0.3)' }
@@ -156,7 +156,7 @@ export default function ComptePage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <h2 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Contrats & documents</h2>
               {contracts.length === 0 ? (
-                <p style={{ fontSize: 13, color: 'rgba(240,235,228,0.3)' }}>Aucun document disponible pour l'instant.</p>
+                <p style={{ fontSize: 13, color: 'rgba(240,235,228,0.3)' }}>Aucun document disponible pour l&apos;instant.</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {contracts.map(c => (
@@ -189,7 +189,7 @@ export default function ComptePage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <h2 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Mes factures</h2>
               {invoices.length === 0 ? (
-                <p style={{ fontSize: 13, color: 'rgba(240,235,228,0.3)' }}>Aucune facture pour l'instant.</p>
+                <p style={{ fontSize: 13, color: 'rgba(240,235,228,0.3)' }}>Aucune facture pour l&apos;instant.</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {invoices.map(inv => (
@@ -203,7 +203,7 @@ export default function ComptePage() {
                         </div>
                       </div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: '#f0ebe4', marginRight: 8 }}>
-                        {formatAmount(inv.amount, currency)}
+                        {formatAmount(inv.amount, inv.currency || currency)}
                       </div>
                       <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 999, background: invoiceStatusColor[inv.status] + '20', color: invoiceStatusColor[inv.status], fontWeight: 600, flexShrink: 0 }}>
                         {invoiceStatusLabel[inv.status]}

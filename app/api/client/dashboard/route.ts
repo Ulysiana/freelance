@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { validateSession } from '@/lib/db/users'
 import { prisma } from '@/lib/db/prisma'
+import { resolveCurrency } from '@/lib/currency'
 
 export const dynamic = 'force-dynamic'
 const COOKIE = 'session_token'
@@ -79,7 +80,7 @@ export async function GET() {
 
     prisma.invoice.findMany({
       where: { clientId: user.id, status: 'PENDING' },
-      select: { id: true, number: true, amount: true, dueAt: true },
+      select: { id: true, number: true, amount: true, currency: true, dueAt: true },
     }),
   ])
 
@@ -106,7 +107,7 @@ export async function GET() {
   }))
 
   return NextResponse.json({
-    currency: settings.currency,
+    currency: resolveCurrency(user.billingCurrency, settings.currency),
     projects: projectsWithTime,
     recentMessages,
     recentRequests,

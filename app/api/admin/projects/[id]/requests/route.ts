@@ -18,7 +18,11 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   const { id } = await params
   const requests = await prisma.projectRequest.findMany({
     where: { projectId: id },
-    include: { author: { select: { id: true, name: true, pseudo: true, role: true } } },
+    include: {
+      author: { select: { id: true, name: true, pseudo: true, role: true } },
+      phase:  { select: { id: true, name: true } },
+      task:   { select: { id: true, title: true } },
+    },
     orderBy: { createdAt: 'desc' },
   })
   return NextResponse.json({ requests })
@@ -27,6 +31,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await requireAuth()
   if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  if (user.role !== 'CLIENT') return NextResponse.json({ error: 'Seul un client peut créer une demande' }, { status: 403 })
   const { id } = await params
   const { title, description } = await req.json()
   if (!title?.trim()) return NextResponse.json({ error: 'Titre requis' }, { status: 400 })

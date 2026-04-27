@@ -6,14 +6,13 @@ import Link from 'next/link'
 import { ChevronRight, User, FolderKanban, FileText, Receipt, Upload, Eye, Download, Trash2, Plus, Check, X } from 'lucide-react'
 import { currencySymbol, formatAmount } from '@/lib/currency'
 
-type Client = { id: string; name: string | null; email: string; phone: string | null; company: string | null; address: string | null; createdAt: string }
+type Client = { id: string; name: string | null; email: string; phone: string | null; company: string | null; address: string | null; createdAt: string; billingCurrency: string | null }
 type Project = { id: string; name: string; status: string; updatedAt: string }
 type Contract = { id: string; originalName: string; mimeType: string; size: number; label: string | null; uploadedAt: string; uploadedBy: { name: string | null; pseudo: string | null } }
-type Invoice = { id: string; number: string; amount: number; status: string; issuedAt: string; dueAt: string | null; filename: string | null; originalName: string | null }
+type Invoice = { id: string; number: string; amount: number; currency: string | null; status: string; issuedAt: string; dueAt: string | null; filename: string | null; originalName: string | null }
 
 type Tab = 'infos' | 'projets' | 'contrats' | 'factures'
 
-const invoiceStatusLabel: Record<string, string> = { PENDING: 'En attente', PAID: 'Payée', OVERDUE: 'En retard', CANCELLED: 'Annulée' }
 const invoiceStatusColor: Record<string, string> = { PENDING: '#e8946a', PAID: '#86efac', OVERDUE: '#f87171', CANCELLED: 'rgba(240,235,228,0.3)' }
 const projectStatusLabel: Record<string, string> = { DRAFT: 'Brouillon', ACTIVE: 'Actif', COMPLETED: 'Terminé', ARCHIVED: 'Archivé' }
 const projectStatusColor: Record<string, string> = { DRAFT: 'rgba(240,235,228,0.3)', ACTIVE: '#86efac', COMPLETED: '#7dd3fc', ARCHIVED: 'rgba(240,235,228,0.2)' }
@@ -32,8 +31,8 @@ export default function ClientFichePage() {
   const [contracts, setContracts] = useState<Contract[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [currency, setCurrency] = useState('EUR')
+  const [savingCurrency, setSavingCurrency] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [dragOver, setDragOver] = useState(false)
   const [contractLabel, setContractLabel] = useState('')
   const [showInvoiceForm, setShowInvoiceForm] = useState(false)
   const [invNumber, setInvNumber] = useState('')
@@ -57,9 +56,24 @@ export default function ClientFichePage() {
       setProjects(p.projects || [])
       setContracts(c.contracts || [])
       setInvoices(i.invoices || [])
-      setCurrency(s.currency || 'EUR')
+      setCurrency(u.user?.billingCurrency || s.currency || 'EUR')
     })
   }, [clientId])
+
+  async function saveCurrency(nextCurrency: string) {
+    setSavingCurrency(true)
+    const res = await fetch(`/api/admin/users/${clientId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ billingCurrency: nextCurrency }),
+    })
+    const data = await res.json()
+    if (res.ok && data.user) {
+      setClient((prev) => (prev ? { ...prev, billingCurrency: data.user.billingCurrency } : prev))
+      setCurrency(data.user.billingCurrency || nextCurrency)
+    }
+    setSavingCurrency(false)
+  }
 
   async function uploadContract(file: File) {
     setUploading(true)
@@ -186,6 +200,22 @@ export default function ClientFichePage() {
                 <div style={{ fontSize: 14, color: value ? '#f0ebe4' : 'rgba(240,235,228,0.25)' }}>{value || '—'}</div>
               </div>
             ))}
+            <div>
+              <div style={{ fontSize: 11, color: 'rgba(240,235,228,0.35)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>Devise</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <select
+                  value={currency}
+                  onChange={e => { setCurrency(e.target.value); void saveCurrency(e.target.value) }}
+                  disabled={savingCurrency}
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '7px 10px', color: '#f0ebe4', fontSize: 13 }}
+                >
+                  <option value="EUR" style={{ background: '#111' }}>EUR (€)</option>
+                  <option value="USD" style={{ background: '#111' }}>USD ($)</option>
+                  <option value="GBP" style={{ background: '#111' }}>GBP (£)</option>
+                </select>
+                <span style={{ fontSize: 12, color: 'rgba(240,235,228,0.35)' }}>{savingCurrency ? 'Enregistrement...' : 'Utilisée pour les factures et les projets de ce client'}</span>
+              </div>
+            </div>
             {client.address && (
               <div style={{ gridColumn: '1 / -1' }}>
                 <div style={{ fontSize: 11, color: 'rgba(240,235,228,0.35)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>Adresse</div>
@@ -273,7 +303,7 @@ export default function ClientFichePage() {
                     <input style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }} type="number" value={invAmount} onChange={e => setInvAmount(e.target.value)} placeholder="1200" />
                   </div>
                   <div>
-                    <label style={{ fontSize: 11, color: 'rgba(240,235,228,0.4)', display: 'block', marginBottom: 4 }}>Date d'émission *</label>
+                    <label style={{ fontSize: 11, color: 'rgba(240,235,228,0.4)', display: 'block', marginBottom: 4 }}>Date d&apos;émission *</label>
                     <input style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }} type="date" value={invIssuedAt} onChange={e => setInvIssuedAt(e.target.value)} />
                   </div>
                   <div>
@@ -317,7 +347,7 @@ export default function ClientFichePage() {
                   </div>
                 </div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#f0ebe4' }}>
-                  {formatAmount(inv.amount, currency, 0)}
+                  {formatAmount(inv.amount, inv.currency || currency, 0)}
                 </div>
                 {/* Statut cliquable */}
                 <select value={inv.status} onChange={e => updateInvoiceStatus(inv.id, e.target.value)}

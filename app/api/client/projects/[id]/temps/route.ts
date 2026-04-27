@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { validateSession } from '@/lib/db/users'
 import { prisma } from '@/lib/db/prisma'
+import { resolveCurrency } from '@/lib/currency'
 
 export const dynamic = 'force-dynamic'
 const COOKIE = 'session_token'
@@ -17,9 +18,9 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   const [project, settings] = await Promise.all([
     prisma.project.findUnique({
       where: { id, clientId: user.id },
-      select: { tjm: true },
+      select: { tjm: true, client: { select: { billingCurrency: true } } },
     }),
-    prisma.appSettings.upsert({ where: { id: 'default' }, create: { id: 'default', hoursPerDay: 8 }, update: {} }),
+    prisma.appSettings.upsert({ where: { id: 'default' }, create: { id: 'default', hoursPerDay: 8, currency: 'EUR' }, update: {} }),
   ])
 
   if (!project) return NextResponse.json({ error: 'Introuvable' }, { status: 404 })
@@ -36,5 +37,5 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   const secondsPerDay = settings.hoursPerDay * 3600
   const cost = (totalSeconds / secondsPerDay) * project.tjm
 
-  return NextResponse.json({ totalSeconds, cost, hoursPerDay: settings.hoursPerDay })
+  return NextResponse.json({ totalSeconds, cost, hoursPerDay: settings.hoursPerDay, currency: resolveCurrency(project.client.billingCurrency, settings.currency) })
 }

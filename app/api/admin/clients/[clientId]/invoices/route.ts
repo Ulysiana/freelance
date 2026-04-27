@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { validateSession } from '@/lib/db/users'
 import { prisma } from '@/lib/db/prisma'
+import { resolveCurrency } from '@/lib/currency'
 import { uploadToR2 } from '@/lib/storage'
 
 export const dynamic = 'force-dynamic'
@@ -31,6 +32,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cli
   if (!user) return NextResponse.json({ error: 'Interdit' }, { status: 403 })
   const { clientId } = await params
 
+  const [client, settings] = await Promise.all([
+    prisma.user.findUnique({ where: { id: clientId }, select: { billingCurrency: true } }),
+    prisma.appSettings.upsert({
+      where: { id: 'default' },
+      create: { id: 'default', hoursPerDay: 8, currency: 'EUR' },
+      update: {},
+    }),
+  ])
+  const currency = resolveCurrency(client?.billingCurrency, settings.currency)
+
   const formData = await req.formData()
   const number = formData.get('number') as string
   const amount = parseFloat(formData.get('amount') as string)
@@ -54,7 +65,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cli
   }
 
   const invoice = await prisma.invoice.create({
-    data: { clientId, number, amount, issuedAt, dueAt, filename, originalName },
+    data: { clientId, number, amount, currency, issuedAt, dueAt, filename, originalName },
   })
 
   return NextResponse.json({ invoice })

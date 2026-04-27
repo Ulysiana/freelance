@@ -30,6 +30,9 @@ export async function POST(req: NextRequest) {
     include: { phase: { include: { project: true } } },
   })
   if (!task) return NextResponse.json({ error: 'Tâche introuvable' }, { status: 404 })
+  if (task.status === 'DONE' || task.status === 'VALIDATED') {
+    return NextResponse.json({ error: 'Pièces jointes verrouillées sur une tâche terminée' }, { status: 403 })
+  }
 
   const ext = file.name.split('.').pop()
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`

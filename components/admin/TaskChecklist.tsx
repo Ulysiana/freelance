@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 
 type TodoItem = { id: string; label: string; checked: boolean; order: number }
 
-export default function TaskChecklist({ taskId }: { taskId: string }) {
+export default function TaskChecklist({ taskId, locked = false }: { taskId: string; locked?: boolean }) {
   const [todos, setTodos] = useState<TodoItem[]>([])
   const [newLabel, setNewLabel] = useState('')
   const [adding, setAdding] = useState(false)
@@ -16,9 +16,14 @@ export default function TaskChecklist({ taskId }: { taskId: string }) {
     setTodos(data.todos || [])
   }
 
-  useEffect(() => { load() }, [taskId])
+  useEffect(() => {
+    fetch(`/api/admin/tasks/${taskId}/todos`)
+      .then(res => res.json())
+      .then(data => setTodos(data.todos || []))
+  }, [taskId])
 
   async function addTodo() {
+    if (locked) return
     if (!newLabel.trim()) return
     setAdding(true)
     await fetch(`/api/admin/tasks/${taskId}/todos`, {
@@ -32,6 +37,7 @@ export default function TaskChecklist({ taskId }: { taskId: string }) {
   }
 
   async function toggle(id: string, checked: boolean) {
+    if (locked) return
     setTodos(t => t.map(todo => todo.id === id ? { ...todo, checked } : todo))
     await fetch(`/api/admin/todos/${id}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
@@ -40,6 +46,7 @@ export default function TaskChecklist({ taskId }: { taskId: string }) {
   }
 
   async function remove(id: string) {
+    if (locked) return
     setTodos(t => t.filter(todo => todo.id !== id))
     await fetch(`/api/admin/todos/${id}`, { method: 'DELETE' })
   }
@@ -68,12 +75,13 @@ export default function TaskChecklist({ taskId }: { taskId: string }) {
             onMouseEnter={e => (e.currentTarget.querySelector('.del-btn') as HTMLElement)?.style.setProperty('opacity', '1')}
             onMouseLeave={e => (e.currentTarget.querySelector('.del-btn') as HTMLElement)?.style.setProperty('opacity', '0')}>
             <input type="checkbox" checked={todo.checked} onChange={e => toggle(todo.id, e.target.checked)}
-              style={{ width: 15, height: 15, accentColor: '#e8946a', cursor: 'pointer', flexShrink: 0 }} />
+              disabled={locked}
+              style={{ width: 15, height: 15, accentColor: '#e8946a', cursor: locked ? 'not-allowed' : 'pointer', flexShrink: 0 }} />
             <span style={{ flex: 1, fontSize: 13, color: todo.checked ? 'rgba(240,235,228,0.35)' : 'rgba(240,235,228,0.8)', textDecoration: todo.checked ? 'line-through' : 'none', transition: 'all 0.2s' }}>
               {todo.label}
             </span>
-            <button className="del-btn" onClick={() => remove(todo.id)}
-              style={{ background: 'none', border: 'none', color: 'rgba(248,113,113,0.6)', cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: 0, opacity: 0, transition: 'opacity 0.15s' }}>×</button>
+            <button className="del-btn" onClick={() => remove(todo.id)} disabled={locked}
+              style={{ background: 'none', border: 'none', color: 'rgba(248,113,113,0.6)', cursor: locked ? 'not-allowed' : 'pointer', fontSize: 16, lineHeight: 1, padding: 0, opacity: locked ? 0.2 : 0, transition: 'opacity 0.15s' }}>×</button>
           </div>
         ))}
       </div>
@@ -81,14 +89,20 @@ export default function TaskChecklist({ taskId }: { taskId: string }) {
       <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
         <input ref={inputRef} style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '7px 12px', color: '#f0ebe4', fontSize: 13, outline: 'none' }}
           placeholder="Ajouter un élément..."
+          disabled={locked}
           value={newLabel}
           onChange={e => setNewLabel(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && addTodo()} />
-        <button onClick={addTodo} disabled={adding || !newLabel.trim()}
+        <button onClick={addTodo} disabled={locked || adding || !newLabel.trim()}
           style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: 'rgba(232,148,106,0.12)', color: '#e8946a', cursor: 'pointer', fontSize: 12, opacity: !newLabel.trim() ? 0.4 : 1 }}>
           + Ajouter
         </button>
       </div>
+      {locked && (
+        <p style={{ marginTop: 10, marginBottom: 0, fontSize: 12, color: 'rgba(240,235,228,0.32)' }}>
+          Checklist verrouillée tant que la tâche reste terminée.
+        </p>
+      )}
     </div>
   )
 }

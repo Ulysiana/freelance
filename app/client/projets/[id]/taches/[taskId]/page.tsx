@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { linkifyHtmlContent } from '@/lib/richText'
 
@@ -28,10 +28,10 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 
 export default function ClientTaskPage() {
   const { id, taskId } = useParams<{ id: string; taskId: string }>()
-  const router = useRouter()
   const [task, setTask] = useState<Task | null>(null)
   const [currentUserId, setCurrentUserId] = useState('')
   const [currentUserRole, setCurrentUserRole] = useState('')
+  const [validating, setValidating] = useState(false)
 
   useEffect(() => {
     fetch(`/api/admin/tasks/${taskId}`).then(r => r.json()).then(d => setTask(d.task))
@@ -40,6 +40,23 @@ export default function ClientTaskPage() {
       setCurrentUserRole(d.user?.role || '')
     })
   }, [taskId])
+
+  async function validateTask() {
+    setValidating(true)
+    const res = await fetch(`/api/admin/tasks/${taskId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'VALIDATED' }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      alert(data.error || 'Validation impossible')
+      setValidating(false)
+      return
+    }
+    setTask(data.task)
+    setValidating(false)
+  }
 
   if (!task) return <p style={{ color: 'rgba(240,235,228,0.4)', fontSize: 14 }}>Chargement...</p>
 
@@ -50,14 +67,11 @@ export default function ClientTaskPage() {
 
   return (
     <div style={{ maxWidth: 680 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: 'rgba(240,235,228,0.35)', flexWrap: 'wrap' }}>
-        <Link href="/client/projets" style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>Projets</Link>
-        <ChevronRight size={12} strokeWidth={1.5} />
-        <Link href={`/client/projets/${id}`} style={{ color: 'rgba(240,235,228,0.35)', textDecoration: 'none' }}>{task.phase.project.name}</Link>
-        <ChevronRight size={12} strokeWidth={1.5} />
-        <span style={{ color: 'rgba(240,235,228,0.5)' }}>{task.phase.name}</span>
-        <ChevronRight size={12} strokeWidth={1.5} />
-        <span style={{ color: 'rgba(240,235,228,0.7)' }}>{task.title}</span>
+      <div style={{ marginBottom: 20 }}>
+        <Link href={`/client/projets/${id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: 'rgba(240,235,228,0.4)', textDecoration: 'none' }}>
+          <ChevronLeft size={13} strokeWidth={1.8} /> Suivi
+        </Link>
+        <div style={{ fontSize: 11, color: 'rgba(240,235,228,0.3)', marginTop: 2 }}>{task.phase.name}</div>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
@@ -66,6 +80,24 @@ export default function ClientTaskPage() {
           {status.label}
         </span>
       </div>
+
+      {task.status === 'DONE' && (
+        <div style={{ marginBottom: 20, padding: '14px 16px', borderRadius: 10, background: 'rgba(232,148,106,0.08)', border: '1px solid rgba(232,148,106,0.18)' }}>
+          <div style={{ fontSize: 13, color: 'rgba(240,235,228,0.78)', marginBottom: 10 }}>
+            Cette tâche est marquée comme terminée. Tu peux maintenant la valider.
+          </div>
+          <button onClick={validateTask} disabled={validating}
+            style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #e8946a, #c27b5b)', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 13, opacity: validating ? 0.7 : 1 }}>
+            {validating ? 'Validation...' : 'Valider la tâche'}
+          </button>
+        </div>
+      )}
+
+      {task.status === 'VALIDATED' && (
+        <div style={{ marginBottom: 20, padding: '12px 14px', borderRadius: 10, background: 'rgba(134,239,172,0.08)', border: '1px solid rgba(134,239,172,0.18)', fontSize: 13, color: 'rgba(240,235,228,0.75)' }}>
+          Tâche validée. Le temps associé est désormais verrouillé.
+        </div>
+      )}
 
       {task.description && (
         <div style={{ marginBottom: 24 }}>

@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import CookieBanner from "@/components/CookieBanner";
 import PWARegister from "@/components/PWARegister";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 
@@ -61,7 +62,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={geist.variable}>
-      <body suppressHydrationWarning>{children}<CookieBanner /><PWARegister /></body>
+      <body suppressHydrationWarning>{children}<CookieBanner /><PWARegister /><PWAInstallPrompt /></body>
     </html>
   );
 }

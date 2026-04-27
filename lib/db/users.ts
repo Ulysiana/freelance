@@ -12,24 +12,34 @@ export type SafeUser = {
   name: string | null
   pseudo: string | null
   role: Role
+  billingCurrency: string | null
   totpEnabled: boolean
   createdAt: Date
   updatedAt: Date
 }
 
-function toSafeUser(user: { id: string; email: string; name: string | null; pseudo: string | null; role: Role; totpSecret: string | null; totpEnabled: boolean; createdAt: Date; updatedAt: Date; passwordHash: string }): SafeUser {
-  const { passwordHash: _, totpSecret: __, ...safe } = user
-  return safe
+function toSafeUser(user: { id: string; email: string; name: string | null; pseudo: string | null; role: Role; billingCurrency: string | null; totpSecret: string | null; totpEnabled: boolean; createdAt: Date; updatedAt: Date; passwordHash: string }): SafeUser {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    pseudo: user.pseudo,
+    role: user.role,
+    billingCurrency: user.billingCurrency,
+    totpEnabled: user.totpEnabled,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  }
 }
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, SALT_ROUNDS)
 }
 
-export async function createUser(email: string, password: string, name?: string, pseudo?: string, role: Role = 'CLIENT'): Promise<SafeUser> {
+export async function createUser(email: string, password: string, name?: string, pseudo?: string, role: Role = 'CLIENT', billingCurrency?: string | null): Promise<SafeUser> {
   const passwordHash = await hashPassword(password)
   const user = await prisma.user.create({
-    data: { email: email.toLowerCase().trim(), passwordHash, name, pseudo, role },
+    data: { email: email.toLowerCase().trim(), passwordHash, name, pseudo, role, billingCurrency: billingCurrency ?? null },
   })
   return toSafeUser(user)
 }
@@ -43,13 +53,14 @@ export async function getAllUsers(): Promise<SafeUser[]> {
   return users.map(toSafeUser)
 }
 
-export async function updateUser(id: string, data: { name?: string; pseudo?: string; email?: string; password?: string; role?: Role }): Promise<SafeUser> {
+export async function updateUser(id: string, data: { name?: string; pseudo?: string; email?: string; password?: string; role?: Role; billingCurrency?: string | null }): Promise<SafeUser> {
   const update: Record<string, unknown> = {}
   if (data.name !== undefined) update.name = data.name
   if (data.pseudo !== undefined) update.pseudo = data.pseudo
   if (data.email !== undefined) update.email = data.email.toLowerCase().trim()
   if (data.password !== undefined) update.passwordHash = await hashPassword(data.password)
   if (data.role !== undefined) update.role = data.role
+  if (data.billingCurrency !== undefined) update.billingCurrency = data.billingCurrency
   const user = await prisma.user.update({ where: { id }, data: update })
   return toSafeUser(user)
 }

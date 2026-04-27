@@ -6,7 +6,7 @@ const offers = [
     tag: "Projet client",
     title: "Développement sur mesure",
     price: "590 € / jour",
-    desc: "Je rejoins votre projet en full remote — développement, architecture, déploiement.",
+    desc: "Je conçois et livre vos solutions web, de l'idée à la mise en production.",
     items: [
       "Python, React, Node, Rust",
       "Apps web, desktop (Tauri), mobile",

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-type User = { id: string; name: string | null; pseudo: string | null; email: string; role: string }
+type User = { id: string; name: string | null; pseudo: string | null; email: string; role: string; billingCurrency: string | null }
 
 const inputStyle: React.CSSProperties = { width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '9px 12px', color: '#f0ebe4', fontSize: 13, outline: 'none', boxSizing: 'border-box' }
 const labelStyle: React.CSSProperties = { fontSize: 11, color: 'rgba(240,235,228,0.45)', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 4, display: 'block' }
@@ -12,7 +12,7 @@ export default function NouveauProjetPage() {
   const router = useRouter()
   const [clients, setClients] = useState<User[]>([])
   const [collabs, setCollabs] = useState<User[]>([])
-  const [currency, setCurrency] = useState('EUR')
+  const [defaultCurrency, setDefaultCurrency] = useState('EUR')
   const [form, setForm] = useState({
     name: '', description: '', billingType: 'TJM', tjm: '', forfaitAmount: '', clientId: '', collaboratorIds: [] as string[],
   })
@@ -27,7 +27,7 @@ export default function NouveauProjetPage() {
       const users: User[] = d.users || []
       setClients(users.filter(u => u.role === 'CLIENT'))
       setCollabs(users.filter(u => u.role === 'COLLABORATEUR'))
-      setCurrency(s.currency || 'EUR')
+      setDefaultCurrency(s.currency || 'EUR')
     })
   }, [])
 
@@ -63,6 +63,8 @@ export default function NouveauProjetPage() {
   }
 
   const displayName = (u: User) => u.pseudo || u.name || u.email
+  const selectedClient = clients.find(c => c.id === form.clientId) || null
+  const currency = selectedClient?.billingCurrency || defaultCurrency
   const currSymbol = { EUR: '€', USD: '$', GBP: '£' }[currency] ?? '€'
 
   return (

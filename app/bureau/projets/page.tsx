@@ -8,7 +8,7 @@ import { formatAmount } from '@/lib/currency'
 
 type Project = {
   id: string; name: string; description: string | null; status: string; tjm: number
-  client: { id: string; name: string | null; pseudo: string | null; email: string }
+  client: { id: string; name: string | null; pseudo: string | null; email: string; billingCurrency: string | null }
   collaborators: { collaborator: { id: string; name: string | null; pseudo: string | null } }[]
 }
 
@@ -18,7 +18,7 @@ const statusIcon: Record<string, React.ElementType> = { DRAFT: Circle, ACTIVE: Z
 
 export default function ProjetsPage() {
   const [projects, setProjects] = useState<Project[]>([])
-  const [currency, setCurrency] = useState('EUR')
+  const [defaultCurrency, setDefaultCurrency] = useState('EUR')
   const [loading, setLoading] = useState(true)
   const [showArchived, setShowArchived] = useState(false)
   const isMobile = useIsMobile()
@@ -29,7 +29,7 @@ export default function ProjetsPage() {
       fetch('/api/admin/settings').then(r => r.json()),
     ]).then(([d, s]) => {
       setProjects(d.projects || [])
-      setCurrency(s.currency || 'EUR')
+      setDefaultCurrency(s.currency || 'EUR')
       setLoading(false)
     })
   }, [])
@@ -56,7 +56,7 @@ export default function ProjetsPage() {
 
       {loading ? <p style={{ color: 'rgba(240,235,228,0.4)', fontSize: 14 }}>Chargement...</p> : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {filtered.length === 0 && <p style={{ color: 'rgba(240,235,228,0.4)', fontSize: 14 }}>Aucun projet pour l'instant.</p>}
+          {filtered.length === 0 && <p style={{ color: 'rgba(240,235,228,0.4)', fontSize: 14 }}>Aucun projet pour l&apos;instant.</p>}
           {filtered.map(p => (
             <Link key={p.id} href={`/bureau/projets/${p.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'border-color 0.2s', cursor: 'pointer' }}
@@ -66,7 +66,7 @@ export default function ProjetsPage() {
                   <span style={{ fontWeight: 600, fontSize: 15 }}>{p.name}</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, color: 'rgba(240,235,228,0.4)' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><User size={11} strokeWidth={1.8} />{p.client.pseudo || p.client.name || p.client.email}</span>
-                    <span>{formatAmount(p.tjm, currency, 0)}/j</span>
+                    <span>{formatAmount(p.tjm, p.client.billingCurrency || defaultCurrency, 0)}/j</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

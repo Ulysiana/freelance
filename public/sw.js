@@ -1,9 +1,12 @@
-const CACHE_NAME = 'creahub-shell-v1'
-const APP_SHELL = ['/', '/manifest.webmanifest']
+const CACHE_NAME = 'creahub-shell-v2'
+const APP_SHELL = ['/', '/offline', '/manifest.webmanifest', '/api/pwa-icon?size=192', '/api/pwa-icon?size=512']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).then(() => self.skipWaiting())
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
   )
 })
 
@@ -28,15 +31,15 @@ self.addEventListener('fetch', (event) => {
       fetch(request)
         .then((response) => {
           const responseClone = response.clone()
-          caches.open(CACHE_NAME).then((cache) => cache.put('/', responseClone))
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone))
           return response
         })
-        .catch(() => caches.match('/') || Response.error())
+        .catch(async () => (await caches.match(request)) || (await caches.match('/offline')) || (await caches.match('/')) || Response.error())
     )
     return
   }
 
-  if (url.pathname.startsWith('/_next/static/') || url.pathname === '/manifest.webmanifest') {
+  if (url.pathname.startsWith('/_next/static/') || url.pathname === '/manifest.webmanifest' || url.pathname === '/offline' || url.pathname === '/api/pwa-icon') {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) return cached

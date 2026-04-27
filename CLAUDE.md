@@ -1,53 +1,65 @@
 @AGENTS.md
 
-## Deployment Notes
+## Deploiement Cloud Run
 
-Use remote build and deploy for this project.
+Pour ce projet, le deploy doit se faire a distance via Google Cloud, pas via un build local.
 
-- Preferred command: `./deploy.sh`
-- Do not use `npm run build` locally unless absolutely necessary. This machine is resource-constrained, and local Next.js production builds can saturate RAM and disk.
+Sequence attendue :
 
-## What Broke Before
+1. lancer `./deploy.sh`
+2. `gcloud builds submit` envoie le projet a Cloud Build
+3. Cloud Build construit l'image Docker et la pousse dans Artifact Registry
+4. `gcloud run deploy` redeploie `creahub-site` avec cette image
 
-The previous deployment attempt failed for several separate reasons:
+## Regle principale
 
-1. Local build artifacts filled the machine.
-- A large `.next` directory had accumulated in the repo and contributed to disk pressure.
-- Local production build on this machine is not the recommended path.
+- Commande standard de deploy : `./deploy.sh`
+- Ne pas lancer `npm run build` localement sauf necessite absolue
+- Ne pas essayer de deployer une build locale Next.js
 
-2. Cloud Build failed on `npm ci`.
-- `package.json` and `package-lock.json` were out of sync.
-- Symptom: missing packages from the lockfile during Docker build.
+Cette machine est limitee en disque et en RAM. Le build de production doit etre laisse a Cloud Build.
 
-3. Prisma generate failed because the schema datasource was incomplete.
-- `prisma/schema.prisma` needs:
-  `url = env("DATABASE_URL")`
+## Parametres actuels
 
-4. Prisma packages were on mismatched major/minor versions.
-- `prisma`
-- `@prisma/client`
-- `@prisma/adapter-pg`
-- These must stay aligned. They were fixed to `7.7.0`.
+- Region Cloud Build : `europe-west1`
+- Region Cloud Run : `europe-west1`
+- Service : `creahub-site`
+- Image : `europe-west1-docker.pkg.dev/creahub-solutions/creahub/site:latest`
 
-5. Cloud Build was using the default `global` region.
-- `deploy.sh` was updated to pass `--region europe-west1` to `gcloud builds submit`.
-- Cloud Run already targeted `europe-west1`.
-- This was not the root cause of the earlier failures, but it should stay consistent.
+## Ce que fait `deploy.sh`
 
-## Rules For Future Deploys
+1. Build + push :
+   `gcloud builds submit --region europe-west1 --tag europe-west1-docker.pkg.dev/creahub-solutions/creahub/site:latest .`
+2. Deploy Cloud Run :
+   `gcloud run deploy creahub-site ...`
 
-- Deploy with `./deploy.sh`
-- Keep Prisma package versions aligned
-- Keep `package-lock.json` in sync with `package.json`
-- Do not remove `url = env("DATABASE_URL")` from `prisma/schema.prisma`
-- Avoid local production builds when remote Cloud Build is available
+Le deploy applique aussi :
 
-## If Deploy Fails Again
+- les secrets via `--set-secrets`
+- `NEXT_PUBLIC_APP_URL=https://creahub-solutions.fr`
+- le port `3000`
+- `512Mi` de RAM, `1` CPU, `min-instances=0`, `max-instances=3`
 
-Check in this order:
+## Si Claude doit deployer
 
-1. `package.json` and `package-lock.json` are synchronized
-2. `prisma`, `@prisma/client`, and `@prisma/adapter-pg` are on matching versions
-3. `prisma/schema.prisma` still contains `url = env("DATABASE_URL")`
-4. `deploy.sh` still uses `europe-west1` for both Cloud Build and Cloud Run
-5. Required secrets and env vars exist in Cloud Run
+Quand on lui demande de deployer, publier ou redeployer, il doit :
+
+1. verifier rapidement que `package.json` et `package-lock.json` sont synchronises
+2. verifier que Prisma est coherent
+3. lancer `./deploy.sh`
+4. lire l'erreur Cloud Build ou Cloud Run si le script echoue
+5. corriger puis relancer `./deploy.sh`
+
+## Points de controle en cas d'echec
+
+1. `package.json` et `package-lock.json` sont synchronises
+2. `prisma`, `@prisma/client` et `@prisma/adapter-pg` ont des versions alignees
+3. avec Prisma 7, `prisma/schema.prisma` ne doit pas contenir `url = env("DATABASE_URL")` ; l'URL est definie dans `prisma.config.ts`
+4. `deploy.sh` utilise toujours `europe-west1` pour Cloud Build et Cloud Run
+5. les secrets requis existent bien dans Secret Manager / Cloud Run
+
+## Resume court
+
+Ne fais pas de build local.
+Lance `./deploy.sh`.
+Le script construit l'image dans Cloud Build, la pousse dans Artifact Registry, puis redeploie `creahub-site` sur Cloud Run.
