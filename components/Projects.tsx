@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import FadeIn from "./FadeIn";
 import BrowserMockup from "./BrowserMockup";
 
@@ -7,6 +8,7 @@ const projects = [
     name: "locationshygge.com",
     url: "https://locationshygge.com",
     type: "Moteur de réservation · Locations Hygge",
+    categories: ["Sur-mesure"],
     stack: ["Python", "React", "Neon", "Cloud Run"],
     desc: "Site de réservation conçu de zéro pour 3 gîtes en montagne. Réservations 100 % en direct, sans commission Booking ni Airbnb. Calendriers synchronisés, logique de prix dynamique, déployé sur Cloud Run.",
     preview: "https://pub-8f5fcb136dea4b40a0ab2b4891e0d4ac.r2.dev/site/preview-hygge.png",
@@ -15,21 +17,38 @@ const projects = [
     name: "difyzi.com",
     url: "https://difyzi.com",
     type: "SaaS PDF · Difyzi",
+    categories: ["SaaS"],
     stack: ["React", "Python", "Rust"],
     desc: "Application web de manipulation de PDF développée de A à Z et mise en production. Fusion, compression, conversion — traitements Python et Rust pour les opérations performantes.",
     preview: "https://pub-8f5fcb136dea4b40a0ab2b4891e0d4ac.r2.dev/site/preview-difyzi.png",
   },
   {
+    name: "mine4fun.win",
+    url: "https://mine4fun.win",
+    type: "SaaS · Serveurs Minecraft moddés",
+    categories: ["Sur-mesure"],
+    stack: ["Node.js", "Express", "SQLite", "Forge", "Linux"],
+    desc: "Plateforme qui déploie des serveurs Minecraft moddés en quelques clics : choix des mods (Forge), provisioning automatique des instances et gestion en self-service. De l'interface web jusqu'à l'infrastructure d'hébergement.",
+    preview: "/images/preview-mine4fun.webp",
+  },
+  {
     name: "mymhypnose.fr",
     url: "https://mymhypnose.fr/",
     type: "Migration VPS · mymhypnose.fr",
+    categories: ["WordPress"],
     stack: ["WordPress", "Linux VPS", "Cloudflare DNS"],
     desc: "Formation WordPress pour rendre le client totalement autonome sur son site. Migration cPanel → VPS Linux : base de données, fichiers, bascule DNS Cloudflare — zéro downtime, zéro perte.",
     preview: "/images/preview-mymhypnose.webp",
   },
 ];
 
+const filters = ["Tous", ...Array.from(new Set(projects.flatMap((p) => p.categories)))];
+
 export default function Projects() {
+  const [active, setActive] = useState("Tous");
+  const visible =
+    active === "Tous" ? projects : projects.filter((p) => p.categories.includes(active));
+
   return (
     <section
       id="projects"
@@ -53,14 +72,57 @@ export default function Projects() {
         >
           Réalisations
         </h2>
-        <p style={{ fontSize: 14, color: "rgba(240,235,228,0.45)", marginBottom: 40 }}>
+        <p style={{ fontSize: 14, color: "rgba(240,235,228,0.45)", marginBottom: 28 }}>
           Projets livrés de bout en bout — conception, développement, mise en production.
         </p>
       </FadeIn>
 
+      {/* Filtres */}
+      <FadeIn delay={0.05}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 36 }}>
+          {filters.map((f) => {
+            const isActive = active === f;
+            return (
+              <button
+                key={f}
+                onClick={() => setActive(f)}
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  padding: "7px 16px",
+                  borderRadius: 999,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  transition: "all 0.2s",
+                  border: isActive
+                    ? "1px solid rgba(232,148,106,0.45)"
+                    : "1px solid rgba(255,255,255,0.1)",
+                  background: isActive ? "rgba(232,148,106,0.14)" : "transparent",
+                  color: isActive ? "#e8946a" : "rgba(240,235,228,0.5)",
+                }}
+                onMouseEnter={(e) => {
+                  if (isActive) return;
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)";
+                  e.currentTarget.style.color = "#f0ebe4";
+                }}
+                onMouseLeave={(e) => {
+                  if (isActive) return;
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.currentTarget.style.color = "rgba(240,235,228,0.5)";
+                }}
+              >
+                {f}
+              </button>
+            );
+          })}
+        </div>
+      </FadeIn>
+
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }} className="projects-grid">
-        {projects.map((p, i) => (
-          <FadeIn key={p.name} delay={i * 0.15}>
+        {visible.map((p, i) => (
+          <FadeIn key={p.name} delay={i * 0.1}>
             <a
               href={p.url || undefined}
               target={p.url ? "_blank" : undefined}
