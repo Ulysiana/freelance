@@ -356,7 +356,7 @@ export default function Hebergeurs() {
               </p>
 
               <a
-                href="mailto:corinne.liot@gmail.com?subject=Tarifs partenaires"
+                href="mailto:contact@creahub-solutions.fr?subject=Tarifs partenaires"
                 style={{
                   display: "inline-block",
                   padding: "13px 28px",

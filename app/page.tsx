@@ -5,6 +5,7 @@ import Offers from "@/components/Offers";
 import Story from "@/components/Story";
 import Projects from "@/components/Projects";
 import Contact from "@/components/Contact";
+import CookieSettingsLink from "@/components/CookieSettingsLink";
 
 export default function Home() {
   return (
@@ -123,6 +124,20 @@ export default function Home() {
           >
             Espace client
           </a>
+          <span style={{ color: "rgba(240,235,228,0.1)", fontSize: 11 }}>·</span>
+          <a
+            href="/politique-confidentialite"
+            style={{
+              color: "rgba(240,235,228,0.25)",
+              textDecoration: "none",
+              fontSize: 11,
+              transition: "color 0.2s",
+            }}
+          >
+            Confidentialité
+          </a>
+          <span style={{ color: "rgba(240,235,228,0.1)", fontSize: 11 }}>·</span>
+          <CookieSettingsLink />
         </div>
       </footer>
     </>

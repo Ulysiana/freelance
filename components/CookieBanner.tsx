@@ -7,6 +7,9 @@ export default function CookieBanner() {
 
   useEffect(() => {
     if (!localStorage.getItem('cookies_accepted')) setVisible(true)
+    const open = () => setVisible(true)
+    window.addEventListener('open-cookie-settings', open)
+    return () => window.removeEventListener('open-cookie-settings', open)
   }, [])
 
   function accept() {

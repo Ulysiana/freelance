@@ -1,14 +1,15 @@
 "use client";
+import { useState } from "react";
 import FadeIn from "./FadeIn";
 
 const offers = [
   {
     tag: "Projet sur mesure",
     title: "Projet sur mesure",
-    price: "75 €/h HT",
-    desc: "Développement web, back-end, intégrations API et architecture cloud. Je prends en charge votre projet de bout en bout.",
+    price: "À partir de 1 500 € · puis 75 €/h HT",
+    desc: "Du site vitrine au projet complexe. Site simple à partir de 1 500 €, le reste au temps passé selon le périmètre. Je prends en charge votre projet de bout en bout.",
     items: [
-      "Sites web & landing pages (Next.js, WordPress, Shopify)",
+      "Site vitrine & landing page — à partir de 1 500 €",
       "Applications web & SaaS (React, Python, Node)",
       "Apps desktop (Tauri) & mobile",
       "Déploiement cloud (GCP, AWS, Azure) & Linux",
@@ -16,6 +17,19 @@ const offers = [
     ],
     cta: "Discuter de votre projet",
     highlight: true,
+    example: {
+      title: "Exemple — Site vitrine à 1 500 € HT",
+      intro: "Un site simple, sans techno lourde, livré clé en main :",
+      items: [
+        "4 à 5 pages (accueil, services, à propos, contact…)",
+        "Design responsive sur mesure, adapté mobile & desktop",
+        "Formulaire de contact connecté à votre boîte mail",
+        "Optimisation SEO de base & performances",
+        "Nom de domaine, hébergement & mise en ligne",
+        "Une session de prise en main pour gérer votre contenu",
+      ],
+      footer: "≈ 20 h de travail · à partir de 1 500 € HT",
+    },
   },
   {
     tag: "Audit & Diagnostic",
@@ -31,6 +45,7 @@ const offers = [
     ],
     cta: "Demander un audit",
     highlight: false,
+    example: null,
   },
   {
     tag: "Migration & Transfert",
@@ -46,10 +61,13 @@ const offers = [
     ],
     cta: "Parler de ma migration",
     highlight: false,
+    example: null,
   },
 ];
 
 export default function Offers() {
+  const [openExample, setOpenExample] = useState<string | null>(null);
+
   return (
     <section
       id="offers"
@@ -176,6 +194,128 @@ export default function Offers() {
                   </li>
                 ))}
               </ul>
+
+              {offer.example && (
+                <div>
+                  <button
+                    onClick={() =>
+                      setOpenExample(
+                        openExample === offer.tag ? null : offer.tag
+                      )
+                    }
+                    aria-expanded={openExample === offer.tag}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      cursor: "pointer",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: "#e8946a",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 18,
+                        height: 18,
+                        borderRadius: "50%",
+                        border: "1px solid rgba(232,148,106,0.4)",
+                        fontSize: 14,
+                        lineHeight: 1,
+                      }}
+                    >
+                      {openExample === offer.tag ? "−" : "+"}
+                    </span>
+                    {openExample === offer.tag
+                      ? "Masquer l'exemple"
+                      : "Voir un exemple détaillé"}
+                  </button>
+
+                  {openExample === offer.tag && (
+                    <div
+                      style={{
+                        marginTop: 14,
+                        padding: "16px 18px",
+                        borderRadius: 12,
+                        border: "1px solid rgba(232,148,106,0.18)",
+                        background: "rgba(232,148,106,0.05)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: "#f0ebe4",
+                          marginBottom: 6,
+                        }}
+                      >
+                        {offer.example.title}
+                      </div>
+                      <p
+                        style={{
+                          fontSize: 12.5,
+                          color: "rgba(240,235,228,0.55)",
+                          lineHeight: 1.5,
+                          marginBottom: 12,
+                        }}
+                      >
+                        {offer.example.intro}
+                      </p>
+                      <ul
+                        style={{
+                          listStyle: "none",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 7,
+                          marginBottom: 12,
+                        }}
+                      >
+                        {offer.example.items.map((item) => (
+                          <li
+                            key={item}
+                            style={{
+                              fontSize: 12.5,
+                              color: "rgba(240,235,228,0.75)",
+                              display: "flex",
+                              alignItems: "flex-start",
+                              gap: 8,
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: "#e8946a",
+                                marginTop: 1,
+                                flexShrink: 0,
+                              }}
+                            >
+                              ✓
+                            </span>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                      <div
+                        style={{
+                          fontSize: 12.5,
+                          fontWeight: 700,
+                          color: "#e8946a",
+                          paddingTop: 10,
+                          borderTop: "1px solid rgba(232,148,106,0.15)",
+                        }}
+                      >
+                        {offer.example.footer}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div style={{ marginTop: "auto", paddingTop: 8 }}>
                 <a
