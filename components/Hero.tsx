@@ -47,7 +47,7 @@ export default function Hero() {
             display: "inline-block",
           }}
         />
-        Creahub Solutions · 100 % remote · 590 €/j
+        Développement web · SaaS · Apps desktop &amp; mobile · 75 €/h HT · 100 % remote
       </motion.div>
 
       {/* Heading */}
@@ -64,12 +64,9 @@ export default function Hero() {
           maxWidth: 820,
         }}
       >
-        Je{" "}
-        <span className="text-gradient">construis, migre</span>
-        <br />
-        et optimise vos
-        <br />
-        projets web &amp; app.
+        Je conçois et développe vos projets{" "}
+        <span className="text-gradient">web, SaaS</span> et applications — de
+        l&apos;idée à la mise en production.
       </motion.h1>
 
       {/* Subtitle */}
@@ -85,9 +82,7 @@ export default function Hero() {
           marginBottom: 40,
         }}
       >
-        Python · React · Node · Rust · WordPress · Shopify · GCP · AWS · Azure · Neon.
-        <br />
-        Autodidacte depuis les années 2000. Passionnée. Soirs &amp; week-ends.
+        Full-stack indépendante. Communication asynchrone. Réponse sous 24 h.
       </motion.p>
 
       {/* CTAs */}
@@ -127,7 +122,7 @@ export default function Hero() {
         </a>
 
         <a
-          href="#offers"
+          href="#projects"
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -148,7 +143,7 @@ export default function Hero() {
             e.currentTarget.style.color = "rgba(240,235,228,0.7)";
           }}
         >
-          Voir mes offres
+          Voir mes réalisations
         </a>
       </motion.div>
 

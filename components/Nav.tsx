@@ -9,8 +9,6 @@ const links = [
   { href: "/hebergeurs", label: "Expertises" },
 ];
 
-const clientLink = { href: "/login", label: "Espace client" };
-
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -95,32 +93,6 @@ export default function Nav() {
               {l.label}
             </a>
           ))}
-          <a
-            href={clientLink.href}
-            style={{
-              fontSize: 13,
-              color: "#6bb6ff",
-              padding: "5px 12px",
-              borderRadius: 999,
-              transition: "all 0.2s",
-              textDecoration: "none",
-              whiteSpace: "nowrap",
-              border: "1px solid rgba(107,182,255,0.22)",
-              background: "rgba(107,182,255,0.08)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "#a9d4ff";
-              e.currentTarget.style.borderColor = "rgba(107,182,255,0.4)";
-              e.currentTarget.style.background = "rgba(107,182,255,0.14)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "#6bb6ff";
-              e.currentTarget.style.borderColor = "rgba(107,182,255,0.22)";
-              e.currentTarget.style.background = "rgba(107,182,255,0.08)";
-            }}
-          >
-            {clientLink.label}
-          </a>
         </div>
 
         {/* CTA */}
@@ -208,22 +180,6 @@ export default function Nav() {
               {l.label}
             </a>
           ))}
-          <a
-            href={clientLink.href}
-            onClick={() => setMenuOpen(false)}
-            style={{
-              fontSize: 15,
-              color: "#6bb6ff",
-              padding: "10px 16px",
-              borderRadius: 10,
-              textDecoration: "none",
-              display: "block",
-              background: "rgba(107,182,255,0.08)",
-              border: "1px solid rgba(107,182,255,0.18)",
-            }}
-          >
-            {clientLink.label}
-          </a>
           <a
             href={resolveHref("#contact")}
             onClick={() => setMenuOpen(false)}

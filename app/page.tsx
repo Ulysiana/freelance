@@ -111,6 +111,18 @@ export default function Home() {
           >
             Partenariat
           </a>
+          <span style={{ color: "rgba(240,235,228,0.1)", fontSize: 11 }}>·</span>
+          <a
+            href="/login"
+            style={{
+              color: "rgba(240,235,228,0.25)",
+              textDecoration: "none",
+              fontSize: 11,
+              transition: "color 0.2s",
+            }}
+          >
+            Espace client
+          </a>
         </div>
       </footer>
     </>

@@ -239,7 +239,7 @@ export default function Story() {
                 </p>
                 {[
                   "100 % remote — pas de déplacement",
-                  "Soirs & week-ends disponibles",
+                  "Réponse sous 24 h",
                   "Communication asynchrone",
                   "Livraisons documentées & maintenables",
                   "Passion des défis complexes",

@@ -6,25 +6,25 @@ const projects = [
   {
     name: "locationshygge.com",
     url: "https://locationshygge.com",
-    type: "Moteur de réservation multi-gîtes",
+    type: "Moteur de réservation · Locations Hygge",
     stack: ["Python", "React", "Neon", "Cloud Run"],
-    desc: "Moteur de réservation complet conçu et développé de zéro : gestion multi-gîtes, calendriers synchronisés, logique de prix dynamique, déploiement Cloud Run, BDD serverless Neon. Architecture pensée pour évoluer sans réécriture.",
+    desc: "Site de réservation conçu de zéro pour 3 gîtes en montagne. Réservations 100 % en direct, sans commission Booking ni Airbnb. Calendriers synchronisés, logique de prix dynamique, déployé sur Cloud Run.",
     preview: "https://pub-8f5fcb136dea4b40a0ab2b4891e0d4ac.r2.dev/site/preview-hygge.png",
   },
   {
     name: "difyzi.com",
     url: "https://difyzi.com",
-    type: "App web · Manipulation de PDF multi-outils",
+    type: "SaaS PDF · Difyzi",
     stack: ["React", "Python", "Rust"],
-    desc: "Application web de manipulation de PDF développée de A à Z : fusion, compression, conversion et plus. Frontend React, traitements Python et Rust pour les opérations performantes sur les fichiers.",
+    desc: "Application web de manipulation de PDF développée de A à Z et mise en production. Fusion, compression, conversion — traitements Python et Rust pour les opérations performantes.",
     preview: "https://pub-8f5fcb136dea4b40a0ab2b4891e0d4ac.r2.dev/site/preview-difyzi.png",
   },
   {
     name: "mymhypnose.fr",
     url: "https://mymhypnose.fr/",
-    type: "Formation WordPress · Migration cPanel → VPS",
+    type: "Migration VPS · mymhypnose.fr",
     stack: ["WordPress", "Linux VPS", "Cloudflare DNS"],
-    desc: "Formation WordPress pour mettre le client en autonomie sur son site. Migration cPanel vers VPS Linux : transfert BDD et fichiers, config serveur, bascule DNS Cloudflare — zéro downtime.",
+    desc: "Formation WordPress pour rendre le client totalement autonome sur son site. Migration cPanel → VPS Linux : base de données, fichiers, bascule DNS Cloudflare — zéro downtime, zéro perte.",
     preview: "/images/preview-mymhypnose.webp",
   },
 ];
@@ -54,7 +54,7 @@ export default function Projects() {
           Réalisations
         </h2>
         <p style={{ fontSize: 14, color: "rgba(240,235,228,0.45)", marginBottom: 40 }}>
-          Deux projets aboutis de bout en bout — conception, développement, mise en production.
+          Projets livrés de bout en bout — conception, développement, mise en production.
         </p>
       </FadeIn>
 

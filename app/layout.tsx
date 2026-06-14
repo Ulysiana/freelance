@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   title: "Creahub Solutions – Développeuse Freelance · Python, React, WordPress, Cloud",
   description:
-    "Creahub Solutions — développeuse freelance full-stack. Python, React, Node, Rust, WordPress, Shopify, Cloud Run, Neon. Audit SEO, migrations, apps desktop & mobile. 100 % remote · 590 €/j.",
+    "Creahub Solutions — développeuse freelance full-stack. Python, React, Node, Rust, WordPress, Shopify, Cloud Run, Neon. Audit SEO, migrations, apps desktop & mobile. 100 % remote · 75 €/h.",
   keywords: [
     "développeuse freelance",
     "python freelance",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: "Creahub Solutions – Développeuse Freelance",
-    description: "Python, React, WordPress, Cloud Run · 100 % remote · 590 €/j",
+    description: "Python, React, WordPress, Cloud Run · 100 % remote · 75 €/h",
     url: "https://creahub-solutions.fr",
     siteName: "Creahub Solutions",
     images: [{ url: "/images/OG_creahub-solutions.png", width: 1200, height: 630, alt: "Creahub Solutions" }],
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Creahub Solutions – Développeuse Freelance",
-    description: "Python, React, WordPress, Cloud Run · 100 % remote · 590 €/j",
+    description: "Python, React, WordPress, Cloud Run · 100 % remote · 75 €/h",
     images: ["/images/OG_creahub-solutions.png"],
   },
   appleWebApp: {

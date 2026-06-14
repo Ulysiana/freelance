@@ -219,7 +219,7 @@ export default function Contact() {
               {
                 icon: "◈",
                 title: "100 % remote",
-                desc: "Je travaille à distance exclusivement — soirs et week-ends inclus. Pas de déplacement.",
+                desc: "Je travaille à distance exclusivement. Communication asynchrone, réponse sous 24 h.",
               },
               {
                 icon: "◇",

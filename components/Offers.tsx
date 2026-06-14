@@ -3,63 +3,48 @@ import FadeIn from "./FadeIn";
 
 const offers = [
   {
-    tag: "Projet client",
-    title: "Développement sur mesure",
-    price: "590 € / jour",
-    desc: "Je conçois et livre vos solutions web, de l'idée à la mise en production.",
+    tag: "Projet sur mesure",
+    title: "Projet sur mesure",
+    price: "75 €/h HT",
+    desc: "Développement web, back-end, intégrations API et architecture cloud. Je prends en charge votre projet de bout en bout.",
     items: [
-      "Python, React, Node, Rust",
-      "Apps web, desktop (Tauri), mobile",
-      "Architecture serveur Linux & cloud (GCP, AWS, Azure)",
-      "WordPress, Shopify, intégrations API",
-      "Soirs & week-ends disponibles",
+      "Sites web & landing pages (Next.js, WordPress, Shopify)",
+      "Applications web & SaaS (React, Python, Node)",
+      "Apps desktop (Tauri) & mobile",
+      "Déploiement cloud (GCP, AWS, Azure) & Linux",
+      "Intégrations API & migrations de bases de données",
     ],
     cta: "Discuter de votre projet",
     highlight: true,
   },
   {
-    tag: "Pack Audit",
-    title: "Audit & Recommandations",
-    price: "À partir de 990 €",
-    desc: "Un diagnostic complet avec des recommandations actionnables, livré en rapport.",
+    tag: "Audit & Diagnostic",
+    title: "Forfait Audit",
+    price: "À partir de 490 €",
+    desc: "Un état des lieux complet de votre site ou application, avec un rapport priorisé et des recommandations actionnables.",
     items: [
       "Audit SEO technique & sémantique",
       "Performance & Core Web Vitals",
-      "Audit technique / revue de code",
-      "Audit UX & parcours utilisateur",
-      "Rapport + atelier de restitution",
+      "Revue de code & architecture",
+      "UX & parcours utilisateur",
+      "Rapport livré + restitution incluse",
     ],
     cta: "Demander un audit",
     highlight: false,
   },
   {
-    tag: "Pack Migration",
+    tag: "Migration & Transfert",
     title: "Migration & Transfert",
     price: "À partir de 790 €",
-    desc: "Migration sécurisée de votre site, BDD ou boutique — sans perte ni downtime.",
+    desc: "Migration sécurisée de votre site, base de données ou boutique — sans perte de données ni downtime.",
     items: [
-      "Migration WordPress (hébergeur, thème)",
-      "Migration base de données",
-      "Migration / refonte Shopify",
+      "Migration WordPress (hébergeur, thème, plugins)",
+      "Migration & refonte Shopify",
+      "Migration de base de données",
       "Audit des risques avant migration",
       "Tests de non-régression & validation",
     ],
     cta: "Parler de ma migration",
-    highlight: false,
-  },
-  {
-    tag: "Pack Build",
-    title: "Mise en production",
-    price: "À partir de 4 900 €",
-    desc: "Du brief à la prod : MVP, app, site — développé, déployé, documenté.",
-    items: [
-      "Spécifications & conception technique",
-      "Dev Python / React / Node / WP / Shopify",
-      "Déploiement cloud ou hébergement",
-      "Tests & mise en production",
-      "Support 30 jours post-lancement",
-    ],
-    cta: "Parler d'un projet Build",
     highlight: false,
   },
 ];
@@ -89,7 +74,7 @@ export default function Offers() {
           Mes offres
         </h2>
         <p style={{ fontSize: 14, color: "rgba(240,235,228,0.45)", marginBottom: 40 }}>
-          Quatre formats, un seul objectif : livrer quelque chose qui marche vraiment.
+          Trois services, un seul objectif : livrer quelque chose qui marche vraiment.
         </p>
       </FadeIn>
 
