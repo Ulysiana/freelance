@@ -7,7 +7,7 @@ import Nav from "@/components/Nav";
 const offers = [
   {
     tag: "Vitrine simple",
-    price: "À partir de 800 €",
+    price: "À partir de 1 500 €",
     items: [
       "Site WordPress vitrine",
       "Présentation de vos hébergements",
@@ -17,7 +17,7 @@ const offers = [
   },
   {
     tag: "Vitrine complexe",
-    price: "À partir de 1 500 €",
+    price: "À partir de 1 800 €",
     items: [
       "WordPress + blog & galerie",
       "Gestion multilingue",
@@ -27,7 +27,7 @@ const offers = [
   },
   {
     tag: "PMS simple WP",
-    price: "À partir de 1 800 €",
+    price: "À partir de 2 200 €",
     items: [
       "WordPress + synchronisation iCal",
       "Intégration PMS basique",
@@ -204,6 +204,7 @@ export default function Hebergeurs() {
             </h2>
             <p style={{ fontSize: 14, color: "rgba(240,235,228,0.45)", marginBottom: 40 }}>
               Six formules adaptées à votre niveau de besoin, de la vitrine simple au moteur sur-mesure.
+              Hors forfait, les évolutions et prestations à la carte sont facturées 75 €/h HT.
             </p>
           </FadeIn>
 
